@@ -12,13 +12,11 @@ This software is meant to run a Raspberry Pi 4 or greater. The following softwar
 
 Connect the following pins:
 
-|--------------|---------|
 | Raspberry PI | Pico Pi |
 |--------------|---------|
 | GPIO24 (18)  | SWDIO   |
 | GND (20)     | GND     |
 | GPIO25 (22)  | SWCLK   |
-|--------------|---------|
 
 # Uploading using client/server architecture
 
@@ -42,7 +40,7 @@ Run on the PC: `./pico-pi-upload-client REMOTE_URL PICO_VERSION my_firmware.elf`
 
 Run on the PC:
 
-`curl -X POST -H "Content-Type: application/octet-stream" --data-binary @${CMAKE_PROJECT_NAME}.elf http://$ENV{REMOTE_IP}:8000`
+`curl -X POST -H "Content-Type: application/octet-stream" -d "{ \"cpu\": \"rp2350\", \"firmware\": \"$(base64 -i my_firmware.elf | tr -d '\n')\" }" http://REMOTE_URL:8000`
 
 ## Calling the client with CMake
 
@@ -50,12 +48,14 @@ Add the following to your CMakeLists.txt:
 
 ```cmake
 add_custom_target(upload-remote
-    COMMAND curl -X POST -H "Content-Type: application/octet-stream" --data-binary @${CMAKE_PROJECT_NAME}.elf http://$ENV{REMOTE_IP}:8000
+    COMMAND curl -X POST -H "Content-Type: application/octet-stream" -d "{ \"cpu\": \"rp2350\", \"firmware\": \"$(base64 -i ${CMAKE_PROJECT_NAME}.elf | tr -d '\n')\" }" http://$ENV{REMOTE_URL}:8000
     DEPENDS ${CMAKE_PROJECT_NAME}
     COMMENT "Uploading remotely..."
     VERBATIM
 )
 ```
+
+And set the environment variable `REMOTE_URL`.
 
 # Uploading directly on the Raspberry Pi
 
