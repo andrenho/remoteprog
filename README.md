@@ -44,18 +44,18 @@ Run on the PC:
 
 ## Calling the client with CMake
 
-Add the following to your CMakeLists.txt:
+Copy file `pico-pi-upload-client.sh` to your project source root, and add the following to your CMakeLists.txt:
 
 ```cmake
 add_custom_target(upload-remote
-    COMMAND curl -X POST -H "Content-Type: application/octet-stream" -d "{ \"cpu\": \"rp2350\", \"firmware\": \"$(base64 -i ${CMAKE_PROJECT_NAME}.elf | tr -d '\n')\" }" http://$ENV{REMOTE_URL}:8376
+    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/pico-pi-upload-client.sh $ENV{REMOTE_URL} rp2350 ${CMAKE_PROJECT_NAME}.elf
     DEPENDS ${CMAKE_PROJECT_NAME}
     COMMENT "Uploading remotely..."
     VERBATIM
 )
 ```
 
-And set the environment variable `REMOTE_URL`.
+Be sure to set the environment variable `REMOTE_URL` when doing `make upload-remote`.
 
 # Uploading directly on the Raspberry Pi
 
