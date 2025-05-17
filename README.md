@@ -28,7 +28,7 @@ Run in the Raspberry Pi as root:
 
 `sudo ./pico-pi-upload-server`
 
-This will start a new server in port 8000.
+This will start a new server in port 8376.
 
 ## Calling the client from shell
 
@@ -40,7 +40,7 @@ Run on the PC: `./pico-pi-upload-client REMOTE_URL PICO_VERSION my_firmware.elf`
 
 Run on the PC:
 
-`curl -X POST -H "Content-Type: application/octet-stream" -d "{ \"cpu\": \"rp2350\", \"firmware\": \"$(base64 -i my_firmware.elf | tr -d '\n')\" }" http://REMOTE_URL:8000`
+`curl -X POST -H "Content-Type: application/octet-stream" -d "{ \"cpu\": \"rp2350\", \"firmware\": \"$(base64 -i my_firmware.elf | tr -d '\n')\" }" http://REMOTE_URL:8376`
 
 ## Calling the client with CMake
 
@@ -48,7 +48,7 @@ Add the following to your CMakeLists.txt:
 
 ```cmake
 add_custom_target(upload-remote
-    COMMAND curl -X POST -H "Content-Type: application/octet-stream" -d "{ \"cpu\": \"rp2350\", \"firmware\": \"$(base64 -i ${CMAKE_PROJECT_NAME}.elf | tr -d '\n')\" }" http://$ENV{REMOTE_URL}:8000
+    COMMAND curl -X POST -H "Content-Type: application/octet-stream" -d "{ \"cpu\": \"rp2350\", \"firmware\": \"$(base64 -i ${CMAKE_PROJECT_NAME}.elf | tr -d '\n')\" }" http://$ENV{REMOTE_URL}:8376
     DEPENDS ${CMAKE_PROJECT_NAME}
     COMMENT "Uploading remotely..."
     VERBATIM
