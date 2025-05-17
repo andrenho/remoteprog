@@ -59,9 +59,10 @@ And set the environment variable `REMOTE_URL`.
 
 # Uploading directly on the Raspberry Pi
 
-This is useful when both development and uploading is being done on a Raspberry Pi.
-
 ## Uploading via SWD
+
+This is useful when both development and uploading is being done on a Raspberry Pi. The Raspberry Pi and the Pico Pi need to be
+connected on the 3-pin interface described above (SWD).
 
 Pico Pi 1:
 
@@ -72,6 +73,8 @@ Pico Pi 2:
 `sudo openocd -f interface/raspberrypi-swd.cfg -f target/rp2350.cfg -c "adapter speed 5000" -c "rp2350.dap.core1 cortex_m reset_config sysresetreq" -c "program my_firmware.elf verify; reset; exit"`
 
 ## Uploading via USB
+
+This can be used both in the PC or the Raspberry Pi. The computer and the Pico Pi need to be connected via a USB cable.
 
 Connect the Pico Pi with the BOOTSEL button pressed, and then run:
 

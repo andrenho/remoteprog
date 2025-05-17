@@ -6,7 +6,7 @@ import json
 import tempfile
 import subprocess
 
-PORT = 8000
+PORT = 8376
 
 def upload_firmware(cpu, binary):  # returns stdout, stderr
     with tempfile.NamedTemporaryFile(mode="wb", delete=True) as f:
