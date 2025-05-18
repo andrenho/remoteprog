@@ -6,4 +6,8 @@ if [ "$#" -ne 3 ]; then
   exit 1
 fi
 
-curl -X POST -H "Content-Type: application/octet-stream" -d "{ \"cpu\": \"$2\", \"firmware\": \"$(base64 -i $3 | tr -d '\n')\" }" http://$1:8376|jq -r '.'
+printf "%s" "{ \"cpu\": \"$2\", \"firmware\": \"" > temp.json
+base64 -i $3 | tr -d '\n' >> temp.json
+echo '" }' >> temp.json
+curl -X POST -H "Content-Type: application/octet-stream" -d @temp.json http://$1:8376|jq -r '.'
+rm temp.json
