@@ -1,6 +1,8 @@
 ## Improvements
 
 - [ ] Create board, connect Pico Zero W (can it use OpenOCD?)
+  - [ ] Light indicator
+  - [ ] Power controlled with transistor (or relay?)
 - [ ] Connections:
   - [ ] AVR (requires 5V converter)
   - [ ] Pico Pi
