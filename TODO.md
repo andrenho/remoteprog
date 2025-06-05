@@ -1,0 +1,29 @@
+# Circuit
+
+- Pi Zero W (or 2)
+- Power control - 5V and 3.3V (use transistor to control it)
+  - Show LED
+- Pico SWD programmer
+  - SWCLK,  GND, SWIO,   5V,      TX,     RX,     RESET
+  - GPIO24, GND, GPIO25, 5V_CTRL, GPIO14, GPIO15, ?????
+- AVR programmer
+  - MOSI, MISO, SCK, RST, 5V,      GND, TX,     RX
+  - ????, ????, ???, ???, 5V_CTRL, GND, GPIO14, GPIO15
+- General outputs
+  - SPI master + slave
+    - MOSI,   MISO,   SCK,    CS0,   CS1
+    - GPIO10, GPIO09, GPIO11, GPIO8, GPIO7    # confirm pigpio
+  - I2C
+    - SLA,   SCL,   GND
+    - GPIO2, GPIO3, GND
+  - Serial
+    - TX,     RX,     GND
+    - GPIO14, GPIO15, GND
+- LCD1602
+  - 6 pins
+    - RS, E, D4, D5, D6, D7
+    - ??, ?, ??, ??, ??, ??
+  - Show IP
+  - Status: Ok, Programming, Error
+- Status LED
+  - OR'd SWCLK, AVR SCK, SPI SCK, SCL
