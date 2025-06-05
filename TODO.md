@@ -4,25 +4,25 @@
 - Power control - 5V and 3.3V (use transistor to control it)
   - Show LED
 - Pico SWD programmer
-  - SWCLK,  GND, SWIO,   5V,      TX,     RX,     RESET
-  - GPIO24, GND, GPIO25, 5V_CTRL, GPIO14, GPIO15, ?????
+  - SWCLK,  GND, SWIO,   5V,    TX,     RX,     RESET
+  - GPIO24, GND, GPIO25, GPIO1, GPIO14, GPIO15, ?????
 - AVR programmer
-  - MOSI, MISO, SCK, RST, 5V,      GND, TX,     RX
-  - ????, ????, ???, ???, 5V_CTRL, GND, GPIO14, GPIO15
+  - MOSI,   MISO,   SCK,    RST,    5V,    GND, TX,     RX
+  - GPIO18, GPIO23, GPIO24, GPIO25, GPIO1, GND, GPIO14, GPIO15
 - General outputs
   - SPI master + slave
-    - MOSI,   MISO,   SCK,    CS0,   CS1
-    - GPIO10, GPIO09, GPIO11, GPIO8, GPIO7    # confirm pigpio
+    - 5V,    GND, MOSI,   MISO,   SCK,    CS0,   CS1
+    - GPIO1, GND, GPIO10, GPIO09, GPIO11, GPIO8, GPIO7    # confirm pigpio
   - I2C
-    - SLA,   SCL,   GND
-    - GPIO2, GPIO3, GND
+    - 5V,     SLA,   SCL,   GND
+    - GPIO01, GPIO2, GPIO3, GND
   - Serial
-    - TX,     RX,     GND
-    - GPIO14, GPIO15, GND
+    - 5V,    TX,     RX,     GND
+    - GPIO1, GPIO14, GPIO15, GND
 - LCD1602
   - 6 pins
-    - RS, E, D4, D5, D6, D7
-    - ??, ?, ??, ??, ??, ??
+    - RS,     E,      D4,    D5,    D6,    D7
+    - GPIO17, GPIO27, GPIO0, GPIO5, GPIO6, GPIO14
   - Show IP
   - Status: Ok, Programming, Error
 - Status LED
