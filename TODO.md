@@ -28,3 +28,47 @@
   - Status: Ok, Programming, Error
 - Status LED
   - OR'd SWCLK, AVR SCK, SPI SCK, SCL
+
+# Client/server functionality
+
+- [ ] LCD code + beeper
+- [ ] Configuration file
+- [ ] Communication code, protobuf
+- [ ] Create client
+  - [ ] Auto-save latest IP
+- [ ] Test communication
+- [ ] Upload firmware
+  - [ ] Auto-detect firmware type (on server)
+  - [ ] Send speed
+  - [ ] Check for general errors (software not installed, etc)
+- [ ] Reset
+- [ ] SPI communication
+- [ ] I2C communication
+- [ ] Fuse programming
+- [ ] Communicate via Serial (second UART?)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

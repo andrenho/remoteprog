@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+enum Protocol {
+  SPI = 0;
+  I2C = 1;
+}
+
+message Destination {
+  enum Microcontroller {
+    AUTO = 0;
+    PICO_1 = 1;
+    PICO_2 = 2;
+    AVR = 3;
+  };
+
+  Microcontroller microcontroller = 1;
+  string          part = 2;
+  int32           bitrate = 3;
+}
+
+message Request {
+  message FirmwareUpload {
+    Destination destination = 1;
+    bool        verify = 2;
+    bool        verbose = 3;
+    bytes       payload = 4;
+  }
+
+  message AvrFuseProgramming {
+    uint32 low      = 1;
+    uint32 high     = 2;
+    uint32 extended = 3;
+  }
+
+  message Reset {
+    uint32 time_ms = 1;
+  }
+
+  message Data {
+    Protocol protocol = 1;
+    bytes    data = 2;
+  }
+
+  oneof request {
+    FirmwareUpload     firmware_upload = 1;
+    AvrFuseProgramming fuse_programming = 2;
+    Reset              reset = 3;
+    Data               data = 4;
+  }
+}
+
+message Response {
+  message Programming {
+    bool success = 1;
+    string errors = 2;
+    string messages = 3;
+  }
+
+  message Data {
+    Protocol protocol = 1;
+    bytes    data = 2;
+  }
+
+  oneof response {
+    Programming programming = 1;
+    Data        data = 2;
+  }
+}
