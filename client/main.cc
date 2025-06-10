@@ -89,15 +89,15 @@ static Options parse_options(int argc, char* argv[])
 static void update_last_data(Options& opt, lastcall::Data data)
 {
     if (opt.server.empty())
-        opt.server = data.at("server");
+        try { opt.server = data.at("server"); } catch (std::out_of_range&) {}
     else
         data["server"] = opt.server;
     if (opt.core.empty())
-        opt.core = data.at("core");
+        try { opt.core = data.at("core"); } catch (std::out_of_range&) {}
     else
         data["core"] = opt.core;
     if (opt.part.empty())
-        opt.part = data.at("part");
+        try { opt.part = data.at("part"); } catch (std::out_of_range&) {}
     else
         data["part"] = opt.part;
     lastcall::save(data);

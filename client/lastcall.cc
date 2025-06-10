@@ -14,13 +14,14 @@ Data load()
     if (f.is_open()) {
         std::string line;
         while (std::getline(f, line)) {
-            int eq = line.find('=');
+            size_t eq = line.find('=');
             if (eq == std::string::npos)
                 return {};
             data[line.substr(0, eq - 1)] = line.substr(eq + 1);
         }
         f.close();
     }
+    return data;
 }
 
 void save(Data const& data)

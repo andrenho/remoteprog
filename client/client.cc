@@ -24,7 +24,7 @@ void connect(std::string const& server_addr)
 
     // NULL to assign the address of my local host to socket structures
     addrinfo *server_info = nullptr;
-    int rv = getaddrinfo(nullptr, PORT, &hints, &server_info);
+    int rv = getaddrinfo(server_addr.c_str(), PORT, &hints, &server_info);
     if (rv != 0)
         throw std::runtime_error("getaddrinfo(): "s + gai_strerror(rv));
 

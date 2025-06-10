@@ -7,8 +7,10 @@ CPPFLAGS = -Wall -Wextra -std=c++20 `pkg-config --cflags protobuf`
 LDFLAGS = `pkg-config --libs protobuf`
 
 ifndef RELEASE
-	CFLAGS += -ggdb -O0
+	CPPFLAGS += -ggdb -O0
 endif
+
+main.o client.o: messages.pb.o
 
 remoteprog: ${OBJ}
 	g++ -o $@ $^ ${LDFLAGS}
