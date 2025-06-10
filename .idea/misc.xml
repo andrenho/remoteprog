@@ -3,4 +3,21 @@
   <component name="Black">
     <option name="sdkName" value="Python 3.9" />
   </component>
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="MakefileSettings">
+    <option name="linkedExternalProjectsSettings">
+      <MakefileProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/server" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/server" />
+          </set>
+        </option>
+        <option name="version" value="2" />
+      </MakefileProjectSettings>
+    </option>
+  </component>
+  <component name="MakefileWorkspace" PROJECT_DIR="$PROJECT_DIR$/server">
+    <contentRoot DIR="$PROJECT_DIR$" />
+  </component>
 </project>

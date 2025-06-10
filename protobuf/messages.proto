@@ -1,10 +1,5 @@
 syntax = "proto3";
 
-enum Protocol {
-  SPI = 0;
-  I2C = 1;
-}
-
 message Destination {
   enum Microcontroller {
     AUTO = 0;
@@ -36,33 +31,49 @@ message Request {
     uint32 time_ms = 1;
   }
 
-  message Data {
-    Protocol protocol = 1;
-    bytes    data = 2;
+  message SPIConfig {
+    uint32 baud = 1;
+    bool   pol = 2;
+    bool   pha = 3;
   }
+
+  message I2CConfig {
+    uint32 baud = 1;
+    uint32 device = 2;
+  }
+
+  message I2CMessage {
+    bytes  data = 1;
+    uint32 response_sz = 2;
+  }
+
+  message Finalize {}
 
   oneof request {
     FirmwareUpload     firmware_upload = 1;
     AvrFuseProgramming fuse_programming = 2;
     Reset              reset = 3;
-    Data               data = 4;
+    SPIConfig          spi_config = 4;
+    bytes              spi_message = 5;
+    I2CConfig          i2c_config = 6;
+    I2CMessage         i2c_message = 7;
+    Finalize           finalize = 99;
   }
 }
 
+//---------------------------------------
+
 message Response {
-  message Programming {
+
+  message Result {
     bool success = 1;
     string errors = 2;
     string messages = 3;
   }
 
-  message Data {
-    Protocol protocol = 1;
-    bytes    data = 2;
+  oneof response {
+    Result result = 1;
+    bytes  data   = 2;
   }
 
-  oneof response {
-    Programming programming = 1;
-    Data        data = 2;
-  }
 }
