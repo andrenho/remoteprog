@@ -1,12 +1,14 @@
 #include "client.hh"
 
 #include <getopt.h>
+
+#include <optional>
 #include <string>
 
-static std::string command, core = "auto", part, file, server;
-static int         verify = 1, verbose, interactive;
-static uint8_t     fuse_low, fuse_high, fuse_extended, pol, pha;
-static uint32_t    baud, response_count, wtime;
+static std::string             command, core = "auto", part, file, server;
+static bool                    verify = true, verbose, interactive;
+static std::optional<uint8_t>  fuse_low, fuse_high, fuse_extended, pol, pha;
+static std::optional<uint32_t> baud, response_count, wtime;
 
 static void print_help(const char* program_name)
 {
@@ -64,6 +66,22 @@ static void parse_options(int argc, char* argv[])
             case '?': break;
             default: throw std::runtime_error("Something went wrong.");
         }
+    }
+
+    while (optind < argc) {
+        if (command.empty()) {
+            command = argv[optind];
+        } else if (command == "upload" || command == "i2c" || command == "spi") {
+            file = argv[optind];
+        } else if (command == "fuse") {
+            if (!fuse_low)
+                fuse_low = std::stoi(argv[optind], nullptr, 16);
+            else if (!fuse_high)
+                fuse_high = std::stoi(argv[optind], nullptr, 16);
+            else if (!fuse_extended)
+                fuse_extended = std::stoi(argv[optind], nullptr, 16);
+        }
+        ++optind;
     }
 }
 
