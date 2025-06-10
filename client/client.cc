@@ -63,8 +63,14 @@ Response send_request(Request const& request)
         i += n;
     } while (i < data.size());
 
+    wait_for_next_response();
+}
+
+Response wait_for_next_response()
+{
     // receive response
-    n = recv(fd, hbuf, 6, MSG_WAITALL);
+    uint8_t hbuf[6];
+    int n = recv(fd, hbuf, 6, MSG_WAITALL);
     if (n != 6)
         throw std::runtime_error("Error receiving header from client.");
     if (hbuf[0] != 0xf1 || hbuf[1] != 0xf0)

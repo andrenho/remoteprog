@@ -5,10 +5,9 @@
 #include <optional>
 #include <string>
 
-static std::string             command, core = "auto", part, file, server;
-static bool                    verify = true, verbose, interactive;
-static std::optional<uint8_t>  fuse_low, fuse_high, fuse_extended, pol, pha;
-static std::optional<uint32_t> baud, response_count, wtime;
+#include "lastcall.hh"
+#include "options.hh"
+#include "request.hh"
 
 static void print_help(const char* program_name)
 {
@@ -25,8 +24,10 @@ General options:
 )", program_name);
 }
 
-static void parse_options(int argc, char* argv[])
+static Options parse_options(int argc, char* argv[])
 {
+    Options opt;
+
     static option options[] = {
         { "core",        optional_argument, nullptr, 'c' },
         { "part",        optional_argument, nullptr, 'p' },
@@ -48,56 +49,87 @@ static void parse_options(int argc, char* argv[])
     while (true) {
         int c = getopt_long(argc, argv, "c:p:Vvt:b:O:A:Iz:s:", options, &idx);
         if (c == -1)
-            return;
+            return opt;
 
         switch (c) {
             case 0: case 'h': print_help(argv[0]); break;
-            case 'c': core = optarg; break;
-            case 'p': part = optarg; break;
-            case 'V': verify = false; break;
-            case 'v': verbose = true; break;
-            case 't': wtime = std::stoi(optarg); break;
-            case 'b': baud = std::stoi(optarg); break;
-            case 'O': pol = std::stoi(optarg); break;
-            case 'A': pha = std::stoi(optarg); break;
-            case 'I': interactive = true; break;
-            case 'z': response_count = std::stoi(optarg); break;
-            case 's': server = optarg; break;
+            case 'c': opt.core = optarg; break;
+            case 'p': opt.part = optarg; break;
+            case 'V': opt.verify = false; break;
+            case 'v': opt.verbose = true; break;
+            case 't': opt.wtime = std::stoi(optarg); break;
+            case 'b': opt.baud = std::stoi(optarg); break;
+            case 'O': opt.pol = std::stoi(optarg); break;
+            case 'A': opt.pha = std::stoi(optarg); break;
+            case 'I': opt.interactive = true; break;
+            case 'z': opt.response_count = std::stoi(optarg); break;
+            case 's': opt.server = optarg; break;
             case '?': break;
             default: throw std::runtime_error("Something went wrong.");
         }
     }
 
     while (optind < argc) {
-        if (command.empty()) {
-            command = argv[optind];
-        } else if (command == "upload" || command == "i2c" || command == "spi") {
-            file = argv[optind];
-        } else if (command == "fuse") {
-            if (!fuse_low)
-                fuse_low = std::stoi(argv[optind], nullptr, 16);
-            else if (!fuse_high)
-                fuse_high = std::stoi(argv[optind], nullptr, 16);
-            else if (!fuse_extended)
-                fuse_extended = std::stoi(argv[optind], nullptr, 16);
+        if (opt.command.empty()) {
+            opt.command = argv[optind];
+        } else if (opt.command == "upload" || opt.command == "i2c" || opt.command == "spi") {
+            opt.file = argv[optind];
+        } else if (opt.command == "fuse") {
+            if (!opt.fuse_low)
+                opt.fuse_low = std::stoi(argv[optind], nullptr, 16);
+            else if (!opt.fuse_high)
+                opt.fuse_high = std::stoi(argv[optind], nullptr, 16);
+            else if (!opt.fuse_extended)
+                opt.fuse_extended = std::stoi(argv[optind], nullptr, 16);
         }
         ++optind;
     }
 }
 
+static void update_last_data(Options& opt, lastcall::Data data)
+{
+    if (opt.server.empty())
+        opt.server = data.at("server");
+    else
+        data["server"] = opt.server;
+    if (opt.core.empty())
+        opt.core = data.at("core");
+    else
+        data["core"] = opt.core;
+    if (opt.part.empty())
+        opt.part = data.at("part");
+    else
+        data["part"] = opt.part;
+    lastcall::save(data);
+}
+
 int main(int argc, char* argv[])
 {
-    parse_options(argc, argv);
+    Options opt = parse_options(argc, argv);
+    lastcall::Data last_data = lastcall::load();
+    update_last_data(opt, last_data);
 
-    client::connect("localhost");
+    if (opt.server.empty())
+        throw std::runtime_error("A server configuration was not found. Please determine the server.");
 
-    Request request;
-    request.set_ack(true);
+    Request request = build_request(opt);
 
+    client::connect(opt.server);
     Response response = client::send_request(request);
 
-    if (response.response_case() == Response::kResult && response.result().success())
-        printf("Success\n");
-    else
-        printf("Failure\n");
+    if (response.response_case() == Response::kResult) {
+again:
+        printf("%s\n", response.result().messages().c_str());
+        fprintf(stderr, "\e[0;31m%s\e[0m\n", response.result().errors().c_str());
+        switch (response.result().result_code()) {
+            case Response_ResultCode_SUCCESS: return EXIT_SUCCESS;
+            case Response_ResultCode_FAILURE: return EXIT_FAILURE;
+            case Response_ResultCode_ONGOING: goto again;
+            default: break;
+        }
+    }
+
+    // TODO - other responses
+
+    return 0;
 }

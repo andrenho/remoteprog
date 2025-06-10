@@ -149,7 +149,7 @@ static void handle(int fd)
             break;
         case Request::kAck: {
             auto result = new Response_Result();
-            result->set_success(true);
+            result->set_result_code(Response_ResultCode_SUCCESS);
             response.set_allocated_result(result);
             break;
         }
@@ -167,7 +167,7 @@ static void handle(int fd)
 static void send_error(int fd, std::string const& error_msg)
 {
     auto result = new Response_Result();
-    result->set_success(false);
+    result->set_result_code(Response_ResultCode_FAILURE);
     result->set_errors(error_msg);
 
     Response response;

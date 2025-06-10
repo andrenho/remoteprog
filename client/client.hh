@@ -9,6 +9,7 @@ constexpr const char* PORT = "9182";
 
 void connect(std::string const& server_addr);
 Response send_request(Request const& request);
+Response wait_for_next_response();
 
 }
 
