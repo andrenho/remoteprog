@@ -4,7 +4,6 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
-#include <poll.h>
 
 #include <stdexcept>
 #include <string>
@@ -98,9 +97,11 @@ static void handle(int fd)
     // receive header
     uint8_t hbuf[6];
     ssize_t n = recv(fd, hbuf, 6, MSG_WAITALL);
+    if (n == 0)
+        return;   // client disconnected
     if (n != 6)
         throw std::runtime_error("Error receiving header from client.");
-    if (hbuf[0] != 'a' || hbuf[1] != 'b')
+    if (hbuf[0] != 0xf1 || hbuf[1] != 0xf0)
         throw std::runtime_error("Invalid header");
     uint32_t msg_sz = hbuf[2]
                     | ((uint32_t) hbuf[3]) << 8
@@ -114,7 +115,7 @@ static void handle(int fd)
     if (n == 0)
         return;   // client disconnected
     if (n < 0)
-        throw std::runtime_error("send(): "s + strerror(errno));
+        throw std::runtime_error("recv(): "s + strerror(errno));
 
     Request request;
     Response response;
@@ -128,6 +129,8 @@ static void handle(int fd)
 
     // act on message
     switch (request.request_case()) {
+        case Request::kTestConnection:
+            break;
         case Request::kFirmwareUpload:
             break;
         case Request::kFuseProgramming:
@@ -144,23 +147,31 @@ static void handle(int fd)
             break;
         case Request::kFinalize:
             break;
+        case Request::kAck: {
+            auto result = new Response_Result();
+            result->set_success(true);
+            response.set_allocated_result(result);
+            break;
+        }
         case Request::REQUEST_NOT_SET:
             send_error(fd, "Protobuf message without a request");
             close(fd);
             return;
     }
 
+    send_response(fd, response);
+
     handle(fd);  // next message
 }
 
 static void send_error(int fd, std::string const& error_msg)
 {
-    Response_Result result;
-    result.set_success(false);
-    result.set_errors(error_msg);
+    auto result = new Response_Result();
+    result->set_success(false);
+    result->set_errors(error_msg);
 
     Response response;
-    response.set_allocated_result(&result);
+    response.set_allocated_result(result);
 
     send_response(fd, response);
 }
@@ -168,6 +179,20 @@ static void send_error(int fd, std::string const& error_msg)
 static void send_response(int fd, Response const& response)
 {
     std::string data = response.SerializeAsString();
+    uint32_t sz = data.size();
+
+    // send response header
+    uint8_t hbuf[6] = {
+        0xf1, 0xf0,
+        (uint8_t) (sz & 0xff), (uint8_t) ((sz >> 8) & 0xff), (uint8_t) ((sz >> 16) & 0xff), (uint8_t) ((sz >> 24) & 0xff)
+    };
+    ssize_t n = send(fd, hbuf, 6, 0);
+    if (n <= 0)
+        throw std::runtime_error("Error sending header: "s + strerror(errno));
+    if (n != 6)
+        throw std::runtime_error("Client did not accept whole header.");
+
+    // send response
     size_t i = 0;
     do {
         ssize_t n = send(fd, &data[i], data.size() - i, 0);

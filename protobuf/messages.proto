@@ -51,12 +51,14 @@ message Request {
 
   oneof request {
     FirmwareUpload     firmware_upload  = 1;
-    AvrFuseProgramming fuse_programming = 2;
-    Reset              reset            = 3;
-    SPIConfig          spi_config       = 4;
-    bytes              spi_message      = 5;
-    I2CConfig          i2c_config       = 6;
-    I2CMessage         i2c_message      = 7;
+    Destination        test_connection  = 2;
+    AvrFuseProgramming fuse_programming = 3;
+    Reset              reset            = 4;
+    SPIConfig          spi_config       = 5;
+    bytes              spi_message      = 6;
+    I2CConfig          i2c_config       = 7;
+    I2CMessage         i2c_message      = 8;
+    bool               ack              = 98;
     Finalize           finalize         = 99;
   }
 }
