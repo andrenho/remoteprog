@@ -18,7 +18,7 @@ message Request {
     Destination destination = 1;
     bool        verify = 2;
     bool        verbose = 3;
-    bytes       payload = 4;
+    bytes       compressed_payload = 4;
   }
 
   message AvrFuseProgramming {
@@ -44,20 +44,20 @@ message Request {
 
   message I2CMessage {
     bytes  data = 1;
-    uint32 response_sz = 2;
+    uint32 expect_response_sz = 2;
   }
 
   message Finalize {}
 
   oneof request {
-    FirmwareUpload     firmware_upload = 1;
+    FirmwareUpload     firmware_upload  = 1;
     AvrFuseProgramming fuse_programming = 2;
-    Reset              reset = 3;
-    SPIConfig          spi_config = 4;
-    bytes              spi_message = 5;
-    I2CConfig          i2c_config = 6;
-    I2CMessage         i2c_message = 7;
-    Finalize           finalize = 99;
+    Reset              reset            = 3;
+    SPIConfig          spi_config       = 4;
+    bytes              spi_message      = 5;
+    I2CConfig          i2c_config       = 6;
+    I2CMessage         i2c_message      = 7;
+    Finalize           finalize         = 99;
   }
 }
 
@@ -66,14 +66,16 @@ message Request {
 message Response {
 
   message Result {
-    bool success = 1;
-    string errors = 2;
+    bool success    = 1;
+    string errors   = 2;
     string messages = 3;
   }
 
   oneof response {
-    Result result = 1;
-    bytes  data   = 2;
+    Result result             = 1;
+    string temporary_result   = 2;
+    bytes  spi_message        = 3;
+    bytes  i2c_message        = 4;
   }
 
 }

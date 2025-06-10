@@ -17,6 +17,8 @@ static int socket_fd = -1;
 namespace server {
 
 static void handle(int fd);
+static void send_error(int fd, std::string const& error_msg);
+static void send_response(int fd, Response const& response);
 
 void listen()
 {
@@ -82,17 +84,17 @@ void listen()
     sockaddr_storage client_addr {};
     socklen_t addr_size = sizeof client_addr;
 
-    int conn_fd = accept(socket_fd, (sockaddr *) &client_addr, &addr_size);
-    if (conn_fd == -1)
-        throw std::runtime_error("accept(): "s + strerror(errno));
-
-    handle(conn_fd);
+    while (true) {
+        int conn_fd = accept(socket_fd, (sockaddr *) &client_addr, &addr_size);
+        if (conn_fd == -1)
+            throw std::runtime_error("accept(): "s + strerror(errno));
+        printf("Connection received.\n");
+        handle(conn_fd);
+    }
 }
 
 static void handle(int fd)
 {
-    printf("Connection received.\n");
-
     // receive header
     uint8_t hbuf[6];
     ssize_t n = recv(fd, hbuf, 6, MSG_WAITALL);
@@ -104,11 +106,75 @@ static void handle(int fd)
                     | ((uint32_t) hbuf[3]) << 8
                     | ((uint32_t) hbuf[4]) << 16
                     | ((uint32_t) hbuf[5]) << 24;
-    printf("Receiving message with %zu bytes.\n", msg_sz);
+    printf("Receiving message with %u bytes.\n", msg_sz);
 
     // receive message
-    uint8_t buf[msg_sz];
+    char buf[msg_sz];
     n = recv(fd, buf, msg_sz, MSG_WAITALL);
+    if (n == 0)
+        return;   // client disconnected
+    if (n < 0)
+        throw std::runtime_error("send(): "s + strerror(errno));
+
+    Request request;
+    Response response;
+
+    // check for errors
+    if (!request.ParseFromString(buf)) {
+        send_error(fd, "Invalid protobuf message");
+        close(fd);
+        return;
+    }
+
+    // act on message
+    switch (request.request_case()) {
+        case Request::kFirmwareUpload:
+            break;
+        case Request::kFuseProgramming:
+            break;
+        case Request::kReset:
+            break;
+        case Request::kSpiConfig:
+            break;
+        case Request::kSpiMessage:
+            break;
+        case Request::kI2CConfig:
+            break;
+        case Request::kI2CMessage:
+            break;
+        case Request::kFinalize:
+            break;
+        case Request::REQUEST_NOT_SET:
+            send_error(fd, "Protobuf message without a request");
+            close(fd);
+            return;
+    }
+
+    handle(fd);  // next message
+}
+
+static void send_error(int fd, std::string const& error_msg)
+{
+    Response_Result result;
+    result.set_success(false);
+    result.set_errors(error_msg);
+
+    Response response;
+    response.set_allocated_result(&result);
+
+    send_response(fd, response);
+}
+
+static void send_response(int fd, Response const& response)
+{
+    std::string data = response.SerializeAsString();
+    size_t i = 0;
+    do {
+        ssize_t n = send(fd, &data[i], data.size() - i, 0);
+        if (n < 0)
+            throw std::runtime_error("send(): "s + strerror(errno));
+        i += n;
+    } while (i < data.size());
 }
 
 }
