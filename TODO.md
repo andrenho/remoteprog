@@ -33,8 +33,8 @@
 
 - [ ] LCD code + beeper
 - [ ] Configuration file
-- [ ] Communication code, protobuf
-- [ ] Create client
+- [x] Communication code, protobuf
+- [x] Create client
   - [ ] Auto-save latest IP
 - [ ] Test communication
 - [ ] Upload firmware

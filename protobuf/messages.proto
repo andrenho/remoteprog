@@ -18,7 +18,8 @@ message Request {
     Destination destination = 1;
     bool        verify = 2;
     bool        verbose = 3;
-    bytes       compressed_payload = 4;
+    bool        payload_compressed = 4;
+    bytes       payload = 99;
   }
 
   message AvrFuseProgramming {
