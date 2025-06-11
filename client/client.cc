@@ -10,6 +10,7 @@
 using namespace std::string_literals;
 
 #include "messages.pb.h"
+#include "../protobuf/comm.hh"
 
 namespace client {
 
@@ -40,60 +41,11 @@ void connect(std::string const& server_addr)
 
 Response send_request(Request const& request)
 {
-    std::string data = request.SerializeAsString();
-    uint32_t sz = data.size();
-
-    // send request header
-    uint8_t hbuf[6] = {
-        0xf1, 0xf0,
-        (uint8_t) (sz & 0xff), (uint8_t) ((sz >> 8) & 0xff), (uint8_t) ((sz >> 16) & 0xff), (uint8_t) ((sz >> 24) & 0xff)
-    };
-    ssize_t n = send(fd, hbuf, 6, 0);
-    if (n <= 0)
-        throw std::runtime_error("Error sending header: "s + strerror(errno));
-    if (n != 6)
-        throw std::runtime_error("Server did not accept whole header.");
-
-    // send message
-    size_t i = 0;
-    do {
-        n = send(fd, &data[i], data.size() - i, 0);
-        if (n < 0)
-            throw std::runtime_error("send(): "s + strerror(errno));
-        i += n;
-    } while (i < data.size());
-
-    return wait_for_next_response();
-}
-
-Response wait_for_next_response()
-{
-    // receive response
-    uint8_t hbuf[6];
-    int n = recv(fd, hbuf, 6, MSG_WAITALL);
-    if (n != 6)
-        throw std::runtime_error("Error receiving header from client.");
-    if (hbuf[0] != 0xf1 || hbuf[1] != 0xf0)
-        throw std::runtime_error("Invalid header");
-    uint32_t msg_sz = hbuf[2]
-                    | ((uint32_t) hbuf[3]) << 8
-                    | ((uint32_t) hbuf[4]) << 16
-                    | ((uint32_t) hbuf[5]) << 24;
-
-    usleep(0);  // not sure why we need this
-
-    // receive message
-    char buf[msg_sz];
-    n = recv(fd, buf, msg_sz, MSG_WAITALL);
-    if (n <= 0)
-        throw std::runtime_error("recv(): "s + strerror(errno));
-
-    // parse message
-    Response response;
-    if (!response.ParseFromString(buf))
-        throw std::runtime_error("Invalid protobuf message");
-
-    return response;
+    send_message(fd, request);
+    auto r = wait_for_message<Response>(fd);
+    if (!r)
+        throw std::runtime_error("Connection closed.");
+    return *r;
 }
 
 }
