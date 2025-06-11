@@ -116,9 +116,8 @@ static void handle(int fd, bool debug_mode)
     // act on message
     switch (request.request_case()) {
         case Request::kFirmwareUpload: {
-            auto result = firmware::upload(request.firmware_upload());
-            response.set_allocated_result(result);
-            break;
+            firmware::upload(fd, request.firmware_upload());
+            goto skip_message;
         }
         case Request::kTestConnection:
             break;
@@ -142,12 +141,6 @@ static void handle(int fd, bool debug_mode)
             break;
         case Request::kFinalize:
             break;
-        case Request::kAck: {
-            auto result = new Response_Result();
-            result->set_result_code(Response_ResultCode_SUCCESS);
-            response.set_allocated_result(result);
-            break;
-        }
         case Request::REQUEST_NOT_SET:
             send_error(fd, "Protobuf message without a request", debug_mode);
             close(fd);
@@ -156,6 +149,7 @@ static void handle(int fd, bool debug_mode)
 
     send_message(fd, response, debug_mode);
 
+skip_message:
     handle(fd, debug_mode);  // next message
 }
 

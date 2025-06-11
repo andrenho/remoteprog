@@ -81,22 +81,57 @@ std::string uncompress_file(std::string const& payload)
     return file;
 }
 
-Response_Result* upload(Request_FirmwareUpload const& req)
+static Destination find_destination(Destination const& destination)
 {
-    auto result = new Response_Result;
+    if (destination.microcontroller() == Destination_Microcontroller_AUTO)
+        throw std::runtime_error("Destination AUTO not implemented yet.");  // TODO
 
+    if (destination.microcontroller() == Destination_Microcontroller_AVR && !destination.has_part())
+        throw std::runtime_error("AVR require a part (ex. atmega328).");
+
+    return destination;
+}
+
+static void upload_payload(int fd, Destination const& destination, std::string const& payload_filename, bool verify)
+{
+    std::string command;
+
+    switch (destination.microcontroller()) {
+        case Destination_Microcontroller_PICO_1:
+            command = "openocd -f /etc/remoteprog/raspberrypi-swd.cfg -f /etc/remoteprog/rp2040.cfg -c 'program " + payload_filename + "; " + (verify ? "verify; " : "") + "reset; exit'";
+            break;
+        case Destination_Microcontroller_PICO_2:
+            command = "openocd -f /etc/remoteprog/raspberrypi-swd.cfg -f /etc/remoteprog/rp2350.cfg -c adapter speed 5000 -c rp2350.dap.core1 cortex_m reset_config sysresetreq -c 'program " + payload_filename + "; " + (verify ? "verify; " : "") + "reset; exit'";
+            break;
+        case Destination_Microcontroller_AVR:
+            throw std::runtime_error("Not implemented"); // TODO
+        default:
+            throw std::runtime_error("Unreachable code");
+    }
+
+    // TODO - execute
+}
+
+void upload(int fd, Request_FirmwareUpload const& req)
+{
     std::string filename;
     if (req.payload_compressed())
         filename = uncompress_file(req.payload());
     else
         filename = save_file(req.payload());
 
-    // TODO - call programmer
+    // find destination
+    Destination destination;
+    destination.set_microcontroller(Destination_Microcontroller_AUTO);
+    if (req.has_destination())
+        destination = req.destination();
+    destination = find_destination(destination);
 
-    // TODO - delete temp file
+    // upload payload to microcontroller
+    upload_payload(fd, destination, filename, req.verify());
 
-    result->set_result_code(Response_ResultCode_SUCCESS);
-    return result;
+    // delete file
+    unlink(filename.c_str());
 }
 
 }

@@ -32,7 +32,7 @@
 # Client/server functionality
 
 - [ ] LCD code + beeper
-- [ ] Configuration file
+- [x] Configuration file
 - [x] Communication code, protobuf
 - [x] Create client
   - [x] Auto-save latest IP
