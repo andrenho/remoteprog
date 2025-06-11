@@ -39,8 +39,9 @@
 - [x] Test communication
 - [ ] Reset
 - [ ] Upload firmware
+  - [x] Receive compresse file
+  - [x] Send speed
   - [ ] Auto-detect firmware type (on server)
-  - [ ] Send speed
   - [ ] Check for general errors (software not installed, etc)
 - [ ] SPI communication
 - [ ] I2C communication

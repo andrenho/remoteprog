@@ -63,7 +63,7 @@ static std::string build_payload(std::string const& file)
             ret = deflate(&strm, flush);
             unsigned have = CHUNK - strm.avail_out;
 
-            int sz = payload.length();
+            size_t sz = payload.length();
             payload.resize(sz + have);
             memcpy(&payload[sz], out, have);
         } while (strm.avail_out == 0);
