@@ -13,7 +13,7 @@ static void print_help(const char* program_name)
 {
     printf(R"(Usage: %s COMMAND [OPTIONS]
 Commands:
-  upload FILE [-c|--core=CORE] [-p|--part=PART] [-V|--no-verify] [-v|--verbose]
+  upload FILE [-c|--core=CORE] [-p|--part=PART] [--baud=BAUD] [-V|--no-verify] [-v|--verbose]
   test [-c|--core=CORE] [-p|--part=PART]
   fuse LOW HIGH EXTENDED [-p|--part=PART]
   reset [-t|--time MS]
@@ -21,12 +21,15 @@ Commands:
   i2c [FILE] [--baud=BAUD] [-z|--response-sz=COUNT] [-I|--interactive]
 General options:
   -s | --server         server address (will use latest if not present)
+Cores:
+  auto, pico1, pico2, avr
 )", program_name);
+    exit(EXIT_SUCCESS);
 }
 
 static Options parse_options(int argc, char* argv[])
 {
-    Options opt;
+    Options opt {};
 
     static option options[] = {
         { "core",        optional_argument, nullptr, 'c' },
@@ -49,7 +52,7 @@ static Options parse_options(int argc, char* argv[])
     while (true) {
         int c = getopt_long(argc, argv, "c:p:Vvt:b:O:A:Iz:s:", options, &idx);
         if (c == -1)
-            return opt;
+            break;
 
         switch (c) {
             case 0: case 'h': print_help(argv[0]); break;
@@ -84,6 +87,11 @@ static Options parse_options(int argc, char* argv[])
         }
         ++optind;
     }
+
+    if (opt.command.empty())
+        print_help(argv[0]);
+
+    return opt;
 }
 
 static void update_last_data(Options& opt, lastcall::Data data)

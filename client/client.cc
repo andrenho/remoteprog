@@ -63,7 +63,7 @@ Response send_request(Request const& request)
         i += n;
     } while (i < data.size());
 
-    wait_for_next_response();
+    return wait_for_next_response();
 }
 
 Response wait_for_next_response()

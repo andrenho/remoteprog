@@ -10,7 +10,7 @@ message Destination {
 
   Microcontroller microcontroller = 1;
   string          part = 2;
-  int32           bitrate = 3;
+  int32           baud = 3;
 }
 
 message Request {

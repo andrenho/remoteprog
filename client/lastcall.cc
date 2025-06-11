@@ -17,7 +17,7 @@ Data load()
             size_t eq = line.find('=');
             if (eq == std::string::npos)
                 return {};
-            data[line.substr(0, eq - 1)] = line.substr(eq + 1);
+            data[line.substr(0, eq)] = line.substr(eq + 1);
         }
         f.close();
     }

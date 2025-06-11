@@ -7,7 +7,7 @@ CPPFLAGS = -Wall -Wextra -std=c++20 `pkg-config --cflags protobuf`
 LDFLAGS = `pkg-config --libs protobuf`
 
 ifndef RELEASE
-	CPPFLAGS += -ggdb -O0
+	CPPFLAGS += -g -ggdb -O0
 endif
 
 main.o client.o: messages.pb.o
