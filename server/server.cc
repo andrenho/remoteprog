@@ -7,6 +7,8 @@
 
 #include <stdexcept>
 #include <string>
+
+#include "firmware.hh"
 using namespace std::string_literals;
 
 #include "messages.pb.h"
@@ -113,9 +115,12 @@ static void handle(int fd, bool debug_mode)
 
     // act on message
     switch (request.request_case()) {
-        case Request::kTestConnection:
+        case Request::kFirmwareUpload: {
+            auto result = firmware::upload(request.firmware_upload());
+            response.set_allocated_result(result);
             break;
-        case Request::kFirmwareUpload:
+        }
+        case Request::kTestConnection:
             break;
         case Request::kFuseProgramming:
             break;

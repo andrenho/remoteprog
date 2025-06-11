@@ -1,7 +1,12 @@
 #include "request.hh"
 
+#include "zlib.h"
+
+#include <fstream>
 #include <string>
 using namespace std::string_literals;
+
+#define CHUNK 16384
 
 static Destination* build_destination(Options const& opt)
 {
@@ -31,8 +36,42 @@ static Destination* build_destination(Options const& opt)
 
 static std::string build_payload(std::string const& file)
 {
-    // TODO
-    return "TODO";
+    std::string payload;
+    z_stream strm {};
+
+    int ret = deflateInit(&strm, Z_DEFAULT_COMPRESSION);
+    if (ret != Z_OK)
+        throw std::runtime_error("Compression error");
+
+    std::ifstream f(file, std::ios::binary);
+    if (!f.is_open())
+        throw std::runtime_error("Can't read file '"s + file + "'");
+
+    uint8_t in[CHUNK], out[CHUNK];
+
+    int flush;
+    do {
+        f.read((char *) in, CHUNK);
+        flush = f.eof() ? Z_FINISH : Z_NO_FLUSH;
+
+        strm.avail_in = f.gcount();
+        strm.next_in = in;
+
+        do {
+            strm.avail_out = CHUNK;
+            strm.next_out = out;
+            ret = deflate(&strm, flush);
+            unsigned have = CHUNK - strm.avail_out;
+
+            int sz = payload.length();
+            payload.resize(sz + have);
+            memcpy(&payload[sz], out, have);
+        } while (strm.avail_out == 0);
+
+    } while (flush != Z_FINISH);
+
+    deflateEnd(&strm);
+    return payload;
 }
 
 Request build_request(Options const& opt)

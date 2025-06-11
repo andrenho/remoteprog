@@ -2,9 +2,9 @@ all: remoteprog-server
 
 include ../protobuf/protobuf.mk
 
-OBJ = main.o server.o messages.pb.o
-CPPFLAGS = -Wall -Wextra -std=c++20 `pkg-config --cflags protobuf`
-LDFLAGS = `pkg-config --libs protobuf`
+OBJ = main.o server.o firmware.o messages.pb.o
+CPPFLAGS = -Wall -Wextra -std=c++20 `pkg-config --cflags protobuf zlib`
+LDFLAGS = `pkg-config --libs protobuf zlib`
 
 ifndef RELEASE
 	CPPFLAGS += -ggdb -O0

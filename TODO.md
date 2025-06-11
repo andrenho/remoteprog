@@ -35,13 +35,13 @@
 - [ ] Configuration file
 - [x] Communication code, protobuf
 - [x] Create client
-  - [ ] Auto-save latest IP
-- [ ] Test communication
+  - [x] Auto-save latest IP
+- [x] Test communication
+- [ ] Reset
 - [ ] Upload firmware
   - [ ] Auto-detect firmware type (on server)
   - [ ] Send speed
   - [ ] Check for general errors (software not installed, etc)
-- [ ] Reset
 - [ ] SPI communication
 - [ ] I2C communication
 - [ ] Fuse programming
