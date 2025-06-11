@@ -121,6 +121,7 @@ int main(int argc, char* argv[])
         throw std::runtime_error("A server configuration was not found. Please determine the server.");
 
     Request request = build_request(opt);
+    request.set_temp(0x99);
 
     client::connect(opt.server);
     Response response = client::send_request(request);

@@ -62,6 +62,8 @@ message Request {
     bool               ack              = 98;
     Finalize           finalize         = 99;
   }
+
+  uint32 temp = 100;
 }
 
 //---------------------------------------

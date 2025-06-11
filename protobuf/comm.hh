@@ -39,7 +39,7 @@ void send_message(int fd, T const& message)
     do {
         n = send(fd, &data[i], data.size() - i, 0);
 #ifdef DEBUG_MESSAGES
-        for (size_t j = i; j < data.size() - i; ++j) printf("[\e[0;32m%02X\e[0m]", data[j]);
+        for (size_t j = i; j < data.size() - i; ++j) printf("[\e[0;32m%02X\e[0m]", (uint8_t) data[j]);
         printf("\n");
 #endif
         if (n < 0)
@@ -77,13 +77,13 @@ std::optional<T> wait_for_message(int fd)
     else if (n < 0)
         throw std::runtime_error("recv(): "s + strerror(errno));
 #ifdef DEBUG_MESSAGES
-        for (size_t j = 0; j < msg_sz; ++j) printf("[\e[0;34m%02X\e[0m]", buf[j]);
+        for (size_t j = 0; j < msg_sz; ++j) printf("[\e[0;34m%02X\e[0m]", (uint8_t) buf[j]);
         printf("\n");
 #endif
 
     // parse message
     T message;
-    if (!message.ParseFromString(buf))
+    if (!message.ParseFromArray(buf, msg_sz))
         throw std::runtime_error("Invalid protobuf message");
 #ifdef DEBUG_MESSAGES
     printf("\e[0;34m%s\e[0m", message.DebugString().c_str());
