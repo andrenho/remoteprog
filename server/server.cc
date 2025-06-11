@@ -122,7 +122,9 @@ static void handle(int fd, bool debug_mode)
         case Request::kReset: {
             auto result = new Response_Result();
             result->set_result_code(Response_ResultCode_SUCCESS);
+            result->set_messages("Microcontroller reset");
             response.set_allocated_result(result);
+            // TODO
             break;
         }
         case Request::kSpiConfig:
@@ -138,9 +140,7 @@ static void handle(int fd, bool debug_mode)
         case Request::kAck: {
             auto result = new Response_Result();
             result->set_result_code(Response_ResultCode_SUCCESS);
-            result->set_messages("Microcontroller reset");
             response.set_allocated_result(result);
-            // TODO
             break;
         }
         case Request::REQUEST_NOT_SET:

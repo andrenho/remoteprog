@@ -19,13 +19,17 @@ void send_message(int fd, T const& message, bool debug=false)
     std::string data = message.SerializeAsString();
     uint32_t sz = data.size();
 
+    if (debug) {
+        printf("Sending message:\n");
+        printf("\e[0;32m%s\e[0m", message.DebugString().c_str());
+    }
+
     // send response header
     uint8_t hbuf[6] = {
         0xf1, 0xf0,
         (uint8_t) (sz & 0xff), (uint8_t) ((sz >> 8) & 0xff), (uint8_t) ((sz >> 16) & 0xff), (uint8_t) ((sz >> 24) & 0xff)
     };
     if (debug) {
-        printf("Sending message:\n");
         for (uint8_t i : hbuf)
             printf("[\e[0;32m%02X\e[0m]", i);
     }
@@ -56,6 +60,8 @@ std::optional<T> wait_for_message(int fd, bool debug=false)
     // receive response
     uint8_t hbuf[6];
     int n = recv(fd, hbuf, 6, MSG_WAITALL);
+    if (n == 0)
+        return {};
     if (n != 6)
         throw std::runtime_error("Error receiving header from client.");
     if (debug) {
