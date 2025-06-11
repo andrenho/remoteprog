@@ -16,10 +16,10 @@ static int socket_fd = -1;
 
 namespace server {
 
-static void handle(int fd);
-static void send_error(int fd, std::string const& error_msg);
+static void handle(int fd, bool debug_mode);
+static void send_error(int fd, std::string const& error_msg, bool debug_mode);
 
-void listen()
+void listen(bool debug_mode)
 {
     addrinfo hints {};
     hints.ai_family = AF_UNSPEC;     // don't care whether it's IPv4 or IPv6
@@ -88,23 +88,23 @@ void listen()
         if (conn_fd == -1)
             throw std::runtime_error("accept(): "s + strerror(errno));
         printf("Connection received.\n");
-        handle(conn_fd);
+        handle(conn_fd, debug_mode);
     }
 }
 
-static void handle(int fd)
+static void handle(int fd, bool debug_mode)
 {
     // receive request
     Request request;
     try {
-        auto r = wait_for_message<Request>(fd);
+        auto r = wait_for_message<Request>(fd, debug_mode);
         if (!r) {
             close(fd);
             return;  // client disconnected
         }
         request = *r;
     } catch (std::exception& e) {
-        send_error(fd, "Invalid protobuf message");
+        send_error(fd, "Invalid protobuf message", debug_mode);
         close(fd);
         return;
     }
@@ -138,21 +138,23 @@ static void handle(int fd)
         case Request::kAck: {
             auto result = new Response_Result();
             result->set_result_code(Response_ResultCode_SUCCESS);
+            result->set_messages("Microcontroller reset");
             response.set_allocated_result(result);
+            // TODO
             break;
         }
         case Request::REQUEST_NOT_SET:
-            send_error(fd, "Protobuf message without a request");
+            send_error(fd, "Protobuf message without a request", debug_mode);
             close(fd);
             return;
     }
 
-    send_message(fd, response);
+    send_message(fd, response, debug_mode);
 
-    handle(fd);  // next message
+    handle(fd, debug_mode);  // next message
 }
 
-static void send_error(int fd, std::string const& error_msg)
+static void send_error(int fd, std::string const& error_msg, bool debug_mode)
 {
     auto result = new Response_Result();
     result->set_result_code(Response_ResultCode_FAILURE);
@@ -161,7 +163,7 @@ static void send_error(int fd, std::string const& error_msg)
     Response response;
     response.set_allocated_result(result);
 
-    send_message(fd, response);
+    send_message(fd, response, debug_mode);
 }
 
 }

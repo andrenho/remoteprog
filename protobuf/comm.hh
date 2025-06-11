@@ -14,7 +14,7 @@ using namespace std::string_literals;
 #include "../client/messages.pb.h"
 
 template <typename T>
-void send_message(int fd, T const& message)
+void send_message(int fd, T const& message, bool debug=false)
 {
     std::string data = message.SerializeAsString();
     uint32_t sz = data.size();
@@ -24,10 +24,11 @@ void send_message(int fd, T const& message)
         0xf1, 0xf0,
         (uint8_t) (sz & 0xff), (uint8_t) ((sz >> 8) & 0xff), (uint8_t) ((sz >> 16) & 0xff), (uint8_t) ((sz >> 24) & 0xff)
     };
-#ifdef DEBUG_MESSAGES
-    printf("Sending message:\n");
-    for (size_t i = 0; i < 6; ++i) printf("[\e[0;32m%02X\e[0m]", hbuf[i]);
-#endif
+    if (debug) {
+        printf("Sending message:\n");
+        for (uint8_t i : hbuf)
+            printf("[\e[0;32m%02X\e[0m]", i);
+    }
     ssize_t n = send(fd, hbuf, 6, 0);
     if (n <= 0)
         throw std::runtime_error("Error sending header: "s + strerror(errno));
@@ -38,10 +39,11 @@ void send_message(int fd, T const& message)
     size_t i = 0;
     do {
         n = send(fd, &data[i], data.size() - i, 0);
-#ifdef DEBUG_MESSAGES
-        for (size_t j = i; j < data.size() - i; ++j) printf("[\e[0;32m%02X\e[0m]", (uint8_t) data[j]);
-        printf("\n");
-#endif
+        if (debug) {
+            for (size_t j = i; j < data.size() - i; ++j)
+                printf("[\e[0;32m%02X\e[0m]", (uint8_t) data[j]);
+            printf("\n");
+        }
         if (n < 0)
             throw std::runtime_error("send(): "s + strerror(errno));
         i += n;
@@ -49,17 +51,18 @@ void send_message(int fd, T const& message)
 }
 
 template <typename T>
-std::optional<T> wait_for_message(int fd)
+std::optional<T> wait_for_message(int fd, bool debug=false)
 {
     // receive response
     uint8_t hbuf[6];
     int n = recv(fd, hbuf, 6, MSG_WAITALL);
     if (n != 6)
         throw std::runtime_error("Error receiving header from client.");
-#ifdef DEBUG_MESSAGES
-    printf("Receiving message:\n");
-    for (size_t i = 0; i < 6; ++i) printf("[\e[0;34m%02X\e[0m]", hbuf[i]);
-#endif
+    if (debug) {
+        printf("Receiving message:\n");
+        for (uint8_t i : hbuf)
+            printf("[\e[0;34m%02X\e[0m]", i);
+    }
     if (hbuf[0] != 0xf1 || hbuf[1] != 0xf0)
         throw std::runtime_error("Invalid header");
     uint32_t msg_sz = hbuf[2]
@@ -76,18 +79,18 @@ std::optional<T> wait_for_message(int fd)
         return {};
     else if (n < 0)
         throw std::runtime_error("recv(): "s + strerror(errno));
-#ifdef DEBUG_MESSAGES
-        for (size_t j = 0; j < msg_sz; ++j) printf("[\e[0;34m%02X\e[0m]", (uint8_t) buf[j]);
+    if (debug) {
+        for (size_t j = 0; j < msg_sz; ++j)
+            printf("[\e[0;34m%02X\e[0m]", (uint8_t) buf[j]);
         printf("\n");
-#endif
+    }
 
     // parse message
     T message;
     if (!message.ParseFromArray(buf, msg_sz))
         throw std::runtime_error("Invalid protobuf message");
-#ifdef DEBUG_MESSAGES
-    printf("\e[0;34m%s\e[0m", message.DebugString().c_str());
-#endif
+    if (debug)
+        printf("\e[0;34m%s\e[0m", message.DebugString().c_str());
 
     return message;
 }

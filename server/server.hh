@@ -5,7 +5,7 @@ namespace server {
 
 constexpr const char* PORT = "9182";
 
-void listen();
+void listen(bool debug_mode);
 
 };
 

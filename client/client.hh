@@ -8,7 +8,7 @@ namespace client {
 constexpr const char* PORT = "9182";
 
 void connect(std::string const& server_addr);
-Response send_request(Request const& request);
+Response send_request(Request const& request, bool debug_mode);
 
 }
 

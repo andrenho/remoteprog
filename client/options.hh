@@ -8,7 +8,7 @@
 struct Options
 {
     std::string             command, core = "auto", part, file, server;
-    bool                    verify = true, verbose, interactive;
+    bool                    verify = true, verbose, interactive, debug_mode;
     std::optional<uint8_t>  fuse_low, fuse_high, fuse_extended, pol, pha;
     std::optional<uint32_t> baud, response_count, wtime;
 };

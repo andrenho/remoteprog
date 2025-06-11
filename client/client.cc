@@ -39,10 +39,10 @@ void connect(std::string const& server_addr)
     freeaddrinfo(server_info);
 }
 
-Response send_request(Request const& request)
+Response send_request(Request const& request, bool debug_mode)
 {
-    send_message(fd, request);
-    auto r = wait_for_message<Response>(fd);
+    send_message(fd, request, debug_mode);
+    auto r = wait_for_message<Response>(fd, debug_mode);
     if (!r)
         throw std::runtime_error("Connection closed.");
     return *r;

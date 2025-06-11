@@ -21,6 +21,7 @@ Commands:
   i2c [FILE] [--baud=BAUD] [-z|--response-sz=COUNT] [-I|--interactive]
 General options:
   -s | --server         server address (will use latest if not present)
+  -d | --debug          debug mode
 Cores:
   auto, pico1, pico2, avr
 )", program_name);
@@ -44,13 +45,14 @@ static Options parse_options(int argc, char* argv[])
         { "response-sz", optional_argument, nullptr, 'z' },
         { "server",      optional_argument, nullptr, 's' },
         { "help",        no_argument,       nullptr, 'h' },
+        { "debug",       no_argument,       nullptr, 'd' },
         { nullptr, 0, nullptr, 0 },
     };
 
     int idx = 0;
 
     while (true) {
-        int c = getopt_long(argc, argv, "c:p:Vvt:b:O:A:Iz:s:", options, &idx);
+        int c = getopt_long(argc, argv, "c:p:Vvt:b:O:A:Iz:s:d", options, &idx);
         if (c == -1)
             break;
 
@@ -67,6 +69,7 @@ static Options parse_options(int argc, char* argv[])
             case 'I': opt.interactive = true; break;
             case 'z': opt.response_count = std::stoi(optarg); break;
             case 's': opt.server = optarg; break;
+            case 'd': opt.debug_mode = true; break;
             case '?': break;
             default: throw std::runtime_error("Something went wrong.");
         }
@@ -124,7 +127,7 @@ int main(int argc, char* argv[])
     request.set_temp(0x99);
 
     client::connect(opt.server);
-    Response response = client::send_request(request);
+    Response response = client::send_request(request, opt.debug_mode);
 
     if (response.response_case() == Response::kResult) {
 again:

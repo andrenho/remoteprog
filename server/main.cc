@@ -1,6 +1,12 @@
 #include "server.hh"
 
-int main()
+#include <cstring>
+
+int main(int argc, char* argv[])
 {
-    server::listen();
+    bool debug_mode = false;
+    if (argc == 2 && strcmp(argv[1], "-d") == 0)
+        debug_mode = true;
+
+    server::listen(debug_mode);
 }
