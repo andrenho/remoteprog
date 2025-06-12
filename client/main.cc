@@ -142,7 +142,7 @@ int main(int argc, char* argv[])
                     return EXIT_FAILURE;
                 case Response_ResultCode_ONGOING:
                     response = client::wait_for_next_message(opt.debug_mode);
-                goto again;
+                    goto again;
                 default: break;
             }
         }

@@ -44,7 +44,7 @@
 - [x] Treat errors in client
 - [x] Validate file type
 - [x] Server never fail
-- [ ] Auto-detect firmware type (on server)
+- [x] Auto-detect firmware type (on server)
 - [ ] SPI communication (simulation)
 - [ ] I2C communication (simulation)
 
