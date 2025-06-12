@@ -43,6 +43,7 @@
   - [x] Send speed
   - [ ] Auto-detect firmware type (on server)
   - [ ] Check for general errors (software not installed, etc)
+- [ ] Treat errors in client
 - [ ] SPI communication
 - [ ] I2C communication
 - [ ] Fuse programming

@@ -1,11 +1,14 @@
 #include "runner.hh"
 
+#include <cstring>
+#include <cstdlib>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/wait.h>
 #include <sys/select.h>
 
 #include <string>
+#include <vector>
 using namespace std::string_literals;
 
 #include "messages.pb.h"
@@ -13,8 +16,14 @@ using namespace std::string_literals;
 
 namespace runner {
 
-void execute(int response_fd, char* args[], bool debug)
+void execute(int response_fd, std::vector<std::string> const& command, bool debug)
 {
+    char** args = (char **) calloc(sizeof(char *), command.size() + 1);
+    for (size_t i = 0; i < command.size(); ++i) {
+        args[i] = (char *) calloc(1, command.at(i).size() + 1);
+        strcpy(args[i], command.at(i).c_str());
+    }
+
     int stdout_pipe[2], stderr_pipe[2];
     if (pipe(stdout_pipe) == -1 || pipe(stderr_pipe) == -1)
         throw std::runtime_error("pipe(): "s + strerror(errno));
@@ -37,8 +46,11 @@ void execute(int response_fd, char* args[], bool debug)
         // execute command
         execvp(args[0], &args[1]);
         throw std::runtime_error("execpv(): "s + strerror(errno));
-
     }
+
+    for (size_t i = 0; i < command.size(); ++i)
+        free(args[i]);
+    free(args);
 
     // Parent process
     close(stdout_pipe[1]); // Close write end
@@ -53,7 +65,7 @@ void execute(int response_fd, char* args[], bool debug)
     std::string stdout_buffer, stderr_buffer;
     int status;
 
-    auto process_pipe = [&](int pipe, std::string& buffer, bool push_everything) {
+    auto process_pipe = [&](int pipe, std::string& buffer) {
         char buf[1024];
         ssize_t bytes = read(pipe, buf, sizeof(buf) - 1);
         if (bytes > 0) {
@@ -83,9 +95,9 @@ void execute(int response_fd, char* args[], bool debug)
         // read from pipes
         if (r > 0) {
             if (FD_ISSET(stdout_pipe[0], &readfds))
-                process_pipe(stdout_pipe[0], stdout_buffer, false);
+                process_pipe(stdout_pipe[0], stdout_buffer);
             if (FD_ISSET(stderr_pipe[0], &readfds))
-                process_pipe(stderr_pipe[0], stderr_buffer, false);
+                process_pipe(stderr_pipe[0], stderr_buffer);
         }
 
         // send partial responses
@@ -108,8 +120,8 @@ void execute(int response_fd, char* args[], bool debug)
     }
 
     // Read any remaining data
-    process_pipe(stdout_pipe[0], stdout_buffer, true);
-    process_pipe(stderr_pipe[0], stderr_buffer, true);
+    process_pipe(stdout_pipe[0], stdout_buffer);
+    process_pipe(stderr_pipe[0], stderr_buffer);
 
     close(stdout_pipe[0]);
     close(stderr_pipe[0]);

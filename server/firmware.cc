@@ -2,6 +2,8 @@
 
 #include <fstream>
 #include <filesystem>
+#include <vector>
+#include <string>
 
 #include "runner.hh"
 #include "zlib.h"
@@ -95,15 +97,16 @@ static Destination find_destination(Destination const& destination)
 
 static void upload_payload(int fd, Destination const& destination, std::string const& payload_filename, bool verify, bool debug_mode)
 {
+    std::vector<std::string> command;
+
     switch (destination.microcontroller()) {
         case Destination_Microcontroller_PICO_1: {
-            // command = "openocd -f /etc/remoteprog/raspberrypi-swd.cfg -f /etc/remoteprog/rp2040.cfg -c 'program " + payload_filename + "; " + (verify ? "verify; " : "") + "reset; exit'";
-            char* args[] = { "./test.sh", nullptr };
-            runner::execute(fd, args, debug_mode);
+            command = { "./test.sh" };
+            // command = { "openocd", "-f", "/etc/remoteprog/raspberrypi-swd.cfg", "-f", "/etc/remoteprog/rp2040.cfg", "-c", "program " + payload_filename + "; " + (verify ? "verify; " : "") + "reset; exit" };
             break;
         }
         case Destination_Microcontroller_PICO_2:
-            // command = "openocd -f /etc/remoteprog/raspberrypi-swd.cfg -f /etc/remoteprog/rp2350.cfg -c adapter speed 5000 -c rp2350.dap.core1 cortex_m reset_config sysresetreq -c 'program " + payload_filename + "; " + (verify ? "verify; " : "") + "reset; exit'";
+            command = { "openocd", "-f", "/etc/remoteprog/raspberrypi-swd.cfg", "-f", "/etc/remoteprog/rp2350.cfg", "-c", "adapter speed 5000", "-c", "rp2350.dap.core1 cortex_m reset_config sysresetreq", "-c", "program " + payload_filename + "; " + (verify ? "verify; " : "") + "reset; exit" };
             break;
         case Destination_Microcontroller_AVR:
             throw std::runtime_error("Not implemented"); // TODO
@@ -111,7 +114,7 @@ static void upload_payload(int fd, Destination const& destination, std::string c
             throw std::runtime_error("Unreachable code");
     }
 
-    // runner::execute(fd, command, debug_mode);
+    runner::execute(fd, command, debug_mode);
 }
 
 void upload(int fd, Request_FirmwareUpload const& req, bool debug_mode)
