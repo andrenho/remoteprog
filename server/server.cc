@@ -116,7 +116,7 @@ static void handle(int fd, bool debug_mode)
     // act on message
     switch (request.request_case()) {
         case Request::kFirmwareUpload: {
-            firmware::upload(fd, request.firmware_upload());
+            firmware::upload(fd, request.firmware_upload(), debug_mode);
             goto skip_message;
         }
         case Request::kTestConnection:

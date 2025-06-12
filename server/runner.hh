@@ -5,7 +5,7 @@
 
 namespace runner {
 
-void execute(int response_fd, std::string const& command);
+void execute(int response_fd, char* args[], bool debug);
 
 }
 

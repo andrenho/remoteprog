@@ -5,7 +5,7 @@
 
 namespace firmware {
 
-void upload(int fd, Request_FirmwareUpload const& req);
+void upload(int fd, Request_FirmwareUpload const& req, bool debug_mode);
 
 }
 

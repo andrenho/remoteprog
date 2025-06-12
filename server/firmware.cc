@@ -3,6 +3,7 @@
 #include <fstream>
 #include <filesystem>
 
+#include "runner.hh"
 #include "zlib.h"
 
 #define CHUNK 16384
@@ -86,22 +87,23 @@ static Destination find_destination(Destination const& destination)
     if (destination.microcontroller() == Destination_Microcontroller_AUTO)
         throw std::runtime_error("Destination AUTO not implemented yet.");  // TODO
 
-    if (destination.microcontroller() == Destination_Microcontroller_AVR && !destination.has_part())
+    if (destination.microcontroller() == Destination_Microcontroller_AVR && destination.part().empty())
         throw std::runtime_error("AVR require a part (ex. atmega328).");
 
     return destination;
 }
 
-static void upload_payload(int fd, Destination const& destination, std::string const& payload_filename, bool verify)
+static void upload_payload(int fd, Destination const& destination, std::string const& payload_filename, bool verify, bool debug_mode)
 {
-    std::string command;
-
     switch (destination.microcontroller()) {
-        case Destination_Microcontroller_PICO_1:
-            command = "openocd -f /etc/remoteprog/raspberrypi-swd.cfg -f /etc/remoteprog/rp2040.cfg -c 'program " + payload_filename + "; " + (verify ? "verify; " : "") + "reset; exit'";
+        case Destination_Microcontroller_PICO_1: {
+            // command = "openocd -f /etc/remoteprog/raspberrypi-swd.cfg -f /etc/remoteprog/rp2040.cfg -c 'program " + payload_filename + "; " + (verify ? "verify; " : "") + "reset; exit'";
+            char* args[] = { "./test.sh", nullptr };
+            runner::execute(fd, args, debug_mode);
             break;
+        }
         case Destination_Microcontroller_PICO_2:
-            command = "openocd -f /etc/remoteprog/raspberrypi-swd.cfg -f /etc/remoteprog/rp2350.cfg -c adapter speed 5000 -c rp2350.dap.core1 cortex_m reset_config sysresetreq -c 'program " + payload_filename + "; " + (verify ? "verify; " : "") + "reset; exit'";
+            // command = "openocd -f /etc/remoteprog/raspberrypi-swd.cfg -f /etc/remoteprog/rp2350.cfg -c adapter speed 5000 -c rp2350.dap.core1 cortex_m reset_config sysresetreq -c 'program " + payload_filename + "; " + (verify ? "verify; " : "") + "reset; exit'";
             break;
         case Destination_Microcontroller_AVR:
             throw std::runtime_error("Not implemented"); // TODO
@@ -109,10 +111,10 @@ static void upload_payload(int fd, Destination const& destination, std::string c
             throw std::runtime_error("Unreachable code");
     }
 
-    runner::execute(fd, command);
+    // runner::execute(fd, command, debug_mode);
 }
 
-void upload(int fd, Request_FirmwareUpload const& req)
+void upload(int fd, Request_FirmwareUpload const& req, bool debug_mode)
 {
     std::string filename;
     if (req.payload_compressed())
@@ -128,7 +130,7 @@ void upload(int fd, Request_FirmwareUpload const& req)
     destination = find_destination(destination);
 
     // upload payload to microcontroller
-    upload_payload(fd, destination, filename, req.verify());
+    upload_payload(fd, destination, filename, req.verify(), debug_mode);
 
     // delete file
     unlink(filename.c_str());
