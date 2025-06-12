@@ -129,10 +129,10 @@ int main(int argc, char* argv[])
         client::connect(opt.server);
         Response response = client::send_request(request, opt.debug_mode);
 
+again:
         if (response.response_case() == Response::kResult) {
-            again:
-                    if (!response.result().messages().empty())
-                        printf("%s\n", response.result().messages().c_str());
+            if (!response.result().messages().empty())
+                printf("%s\n", response.result().messages().c_str());
             if (!response.result().errors().empty())
                 fprintf(stderr, "\e[0;31m%s\e[0m\n", response.result().errors().c_str());
             switch (response.result().result_code()) {
