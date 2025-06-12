@@ -108,7 +108,10 @@ static void upload_payload(int fd, Destination const& destination, std::string c
             command = { "openocd", "-f", "/etc/remoteprog/raspberrypi-swd.cfg", "-f", "/etc/remoteprog/rp2350.cfg", "-c", "adapter speed 5000", "-c", "rp2350.dap.core1 cortex_m reset_config sysresetreq", "-c", "program " + payload_filename + "; " + (verify ? "verify; " : "") + "reset; exit" };
             break;
         case Destination_Microcontroller_AVR:
-            throw std::runtime_error("Not implemented"); // TODO
+            command = { "avrdude", "-p", destination.part(), "-C", "/etc/remoteprog/avrdude.conf", "-c", "remoteprog", "-U", "flash:w:" + payload_filename + ":i" };
+            if (!verify)
+                command.emplace_back("-V");
+            break;
         default:
             throw std::runtime_error("Unreachable code");
     }

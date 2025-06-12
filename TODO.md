@@ -42,6 +42,8 @@
   - [x] Receive compresse file
   - [x] Send speed
 - [x] Treat errors in client
+- [ ] Add filename to message
+- [ ] Validate file type
 - [ ] Auto-detect firmware type (on server)
 - [ ] SPI communication (simulation)
 - [ ] I2C communication (simulation)
