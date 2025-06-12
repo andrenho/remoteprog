@@ -109,7 +109,7 @@ static void upload_payload(int fd, Destination const& destination, std::string c
             throw std::runtime_error("Unreachable code");
     }
 
-    // TODO - execute
+    runner::execute(fd, command);
 }
 
 void upload(int fd, Request_FirmwareUpload const& req)
