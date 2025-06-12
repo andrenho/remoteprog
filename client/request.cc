@@ -90,9 +90,13 @@ Request build_request(Options const& opt)
         request.set_allocated_test_connection(build_destination(opt));
     } else if (opt.command == "fuse") {
         auto fuse = new Request_AvrFuseProgramming;
-        if (opt.fuse_low) fuse->set_low(*opt.fuse_low);
-        if (opt.fuse_high) fuse->set_low(*opt.fuse_high);
-        if (opt.fuse_extended) fuse->set_low(*opt.fuse_extended);
+        fuse->set_allocated_destination(build_destination(opt));
+        fuse->set_low(*opt.fuse_low);
+        fuse->set_high(*opt.fuse_high);
+        if (opt.fuse_extended) {
+            fuse->set_has_extended(true);
+            fuse->set_extended(*opt.fuse_extended);
+        }
         request.set_allocated_fuse_programming(fuse);
     } else if (opt.command == "reset") {
         auto reset = new Request_Reset;

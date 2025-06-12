@@ -23,9 +23,11 @@ message Request {
   }
 
   message AvrFuseProgramming {
-    uint32 low      = 1;
-    uint32 high     = 2;
-    uint32 extended = 3;
+    Destination  destination  = 1;
+    uint32       low          = 2;
+    uint32       high         = 3;
+    bool         has_extended = 4;
+    uint32       extended     = 5;
   }
 
   message Reset {

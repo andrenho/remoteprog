@@ -9,6 +9,7 @@
 #include <string>
 
 #include "firmware.hh"
+#include "llcomm.hh"
 using namespace std::string_literals;
 
 #include "messages.pb.h"
@@ -20,6 +21,7 @@ namespace server {
 
 static void handle(int fd, bool debug_mode);
 static void send_error(int fd, std::string const& error_msg, bool debug_mode);
+static void send_success(int fd, bool debug);
 
 void listen(bool debug_mode)
 {
@@ -116,46 +118,71 @@ static void handle(int fd, bool debug_mode)
         return;
     }
 
-    Response response;
-
     // act on message
-    switch (request.request_case()) {
-        case Request::kFirmwareUpload: {
-            firmware::upload(fd, request.firmware_upload(), debug_mode);
-            goto skip_message;
-        }
-        case Request::kTestConnection:
-            break;
-        case Request::kFuseProgramming:
-            break;
-        case Request::kReset: {
-            auto result = new Response_Result();
-            result->set_result_code(Response_ResultCode_SUCCESS);
-            result->set_messages("Microcontroller reset");
-            response.set_allocated_result(result);
-            // TODO
-            break;
-        }
-        case Request::kSpiConfig:
-            break;
-        case Request::kSpiMessage:
-            break;
-        case Request::kI2CConfig:
-            break;
-        case Request::kI2CMessage:
-            break;
-        case Request::kFinalize:
-            break;
-        case Request::REQUEST_NOT_SET:
-            send_error(fd, "Protobuf message without a request", debug_mode);
+    try {
+        switch (request.request_case()) {
+            case Request::kFirmwareUpload:
+                firmware::upload(fd, request.firmware_upload(), debug_mode);
+                break;
+            case Request::kTestConnection:
+                firmware::test_connection(fd, request.test_connection(), debug_mode);
+                break;
+            case Request::kFuseProgramming:
+                firmware::program_fuses(fd, request.fuse_programming(), debug_mode);
+                break;
+            case Request::kReset:
+                llcomm::reset(request.reset());
+                send_success(fd, debug_mode);
+                break;
+            case Request::kSpiConfig:
+                llcomm::spi_configure(request.spi_config());
+                send_success(fd, debug_mode);
+                break;
+            case Request::kSpiMessage: {
+                uint8_t response[request.spi_message().size()];
+                llcomm::spi_send((uint8_t const*) request.spi_message().data(), request.spi_message().size(), response);
+                Response r;
+                r.set_spi_message(std::string((const char *) response, request.spi_message().size()));
+                send_message(fd, r, debug_mode);
+                break;
+            }
+            case Request::kI2CConfig:
+                llcomm::i2c_configure(request.i2c_config());
+                send_success(fd, debug_mode);
+                break;
+            case Request::kI2CMessage:{
+                uint8_t response[request.i2c_message().expect_response_sz()];
+                llcomm::i2c_send((uint8_t const*) request.i2c_message().data().data(), request.i2c_message().data().size(), response, request.i2c_message().expect_response_sz());
+                Response r;
+                r.set_i2c_message(std::string((const char *) response, request.i2c_message().expect_response_sz()));
+                send_message(fd, r, debug_mode);
+                break;
+            }
+            case Request::kFinalize:
+                llcomm::finalize();
+                send_success(fd, debug_mode);
+                break;
+            case Request::REQUEST_NOT_SET:
+                send_error(fd, "Protobuf message without a request", debug_mode);
             close(fd);
             return;
+        }
+    } catch (std::exception& e) {
+        send_error(fd, e.what(), debug_mode);
     }
 
-    send_message(fd, response, debug_mode);
-
-skip_message:
     handle(fd, debug_mode);  // next message
+}
+
+static void send_success(int fd, bool debug)
+{
+    auto result = new Response_Result();
+    result->set_result_code(Response_ResultCode_SUCCESS);
+
+    Response response;
+    response.set_allocated_result(result);
+
+    send_message(fd, response, debug);
 }
 
 static void send_error(int fd, std::string const& error_msg, bool debug_mode)

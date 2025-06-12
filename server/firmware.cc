@@ -1,5 +1,6 @@
 #include "firmware.hh"
 
+#include <format>
 #include <fstream>
 #include <filesystem>
 #include <vector>
@@ -136,6 +137,45 @@ static void upload_payload(int fd, Destination const& destination, std::string c
             break;
         default:
             throw std::runtime_error("Unreachable code");
+    }
+
+    runner::execute(fd, command, debug_mode);
+}
+
+void test_connection(int fd, Destination const& dest, bool debug_mode)
+{
+    std::vector<std::string> command;
+
+    switch (dest.microcontroller()) {
+        case Destination_Microcontroller_PICO_1:
+        case Destination_Microcontroller_PICO_2:
+            command = { "openocd", "-f", "/etc/remoteprog/raspberrypi-swd.cfg", "-f", "/etc/remoteprog/rp2350.cfg", "-c", "adapter speed 5000", "reset; exit" };
+            break;
+        case Destination_Microcontroller_AVR:
+            command = { "avrdude", "-p", dest.part(), "-C", "/etc/remoteprog/avrdude.conf", "-c", "remoteprog" };
+            break;
+        default:
+            throw std::runtime_error("Unreachable code");
+    }
+
+    runner::execute(fd, command, debug_mode);
+}
+
+void program_fuses(int fd, Request_AvrFuseProgramming const& fuses, bool debug_mode)
+{
+    std::vector<std::string> command;
+    if (fuses.destination().microcontroller() == Destination_Microcontroller_AUTO || fuses.destination().microcontroller() == Destination_Microcontroller_AVR) {
+        command = {
+            "avrdude", "-p", fuses.destination().part(), "-C", "/etc/remoteprog/avrdude.conf", "-c", "remoteprog",
+            "-U", std::format("lfuse:w:0x{:x}:m", fuses.low()),
+            "-U", std::format("hfuse:w:0x{:x}:m", fuses.high())
+        };
+        if (fuses.has_extended()) {
+            command.emplace_back("-U");
+            command.emplace_back(std::format("efuse:w:0x{:x}:m", fuses.extended()));
+        }
+    } else {
+        throw std::runtime_error("Fuse programming is only supported for AVR.");
     }
 
     runner::execute(fd, command, debug_mode);
