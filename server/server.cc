@@ -90,7 +90,12 @@ void listen(bool debug_mode)
         if (conn_fd == -1)
             throw std::runtime_error("accept(): "s + strerror(errno));
         printf("Connection received.\n");
-        handle(conn_fd, debug_mode);
+        try {
+            handle(conn_fd, debug_mode);
+        } catch (std::exception& e) {
+            fprintf(stderr, "error: %s\n", e.what());
+            send_error(conn_fd, e.what(), debug_mode);
+        }
     }
 }
 

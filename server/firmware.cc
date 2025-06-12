@@ -84,10 +84,32 @@ std::string uncompress_file(std::string const& payload)
     return file;
 }
 
-static Destination find_destination(Destination const& destination)
+static Destination_Microcontroller auto_detect_microcontroller(std::string const& filename, bool debug_mode)
+{
+    int rp2350 = system(("strings " + filename + " | grep gpio_function_rp2350").c_str());
+    int rp2040 = system(("strings " + filename + " | grep gpio_function_rp2040").c_str());
+    int hex = system(("grep '^:[0-9A-F]\\+' " + filename).c_str());
+
+    if (rp2350 == 0) {
+        if (debug_mode) printf("Payload auto-detected as pico2.\n");
+        return Destination_Microcontroller_PICO_2;
+    }
+    if (rp2040 == 0) {
+        if (debug_mode) printf("Payload auto-detected as pico1.\n");
+        return Destination_Microcontroller_PICO_1;
+    }
+    if (hex == 0) {
+        if (debug_mode) printf("Payload auto-detected as AVR (hex).\n");
+        return Destination_Microcontroller_AVR;
+    }
+
+    throw std::runtime_error("Could not auto-detect the file type.");
+}
+
+static Destination find_destination(Destination destination, std::string const& filename, bool debug_mode)
 {
     if (destination.microcontroller() == Destination_Microcontroller_AUTO)
-        throw std::runtime_error("Destination AUTO not implemented yet.");  // TODO
+        destination.set_microcontroller(auto_detect_microcontroller(filename, debug_mode));
 
     if (destination.microcontroller() == Destination_Microcontroller_AVR && destination.part().empty())
         throw std::runtime_error("AVR require a part (ex. atmega328).");
@@ -132,7 +154,7 @@ void upload(int fd, Request_FirmwareUpload const& req, bool debug_mode)
     destination.set_microcontroller(Destination_Microcontroller_AUTO);
     if (req.has_destination())
         destination = req.destination();
-    destination = find_destination(destination);
+    destination = find_destination(destination, filename, debug_mode);
 
     // upload payload to microcontroller
     upload_payload(fd, destination, filename, req.verify(), debug_mode);
