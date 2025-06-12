@@ -31,46 +31,32 @@
 
 # Client/server functionality
 
-- [ ] LCD code + beeper
+## Client/server
+
 - [x] Configuration file
 - [x] Communication code, protobuf
 - [x] Create client
   - [x] Auto-save latest IP
 - [x] Test communication
-- [ ] Reset
-- [ ] Upload firmware
+- [x] Upload firmware
   - [x] Receive compresse file
   - [x] Send speed
-  - [ ] Auto-detect firmware type (on server)
+- [x] Treat errors in client
+- [ ] Auto-detect firmware type (on server)
+- [ ] SPI communication (simulation)
+- [ ] I2C communication (simulation)
+
+## PI
+
+- [ ] LCD code + beeper
+- [ ] Reset
+- [ ] Test connection (AVR/Pico)
+  - [ ] Configuration files
+- [ ] Upload (AVR/Pico)
+  - [ ] Upload
   - [ ] Check for general errors (software not installed, etc)
-- [ ] Treat errors in client
-- [ ] SPI communication
-- [ ] I2C communication
+  - [ ] Add verbose mode
+- [ ] SPI
+- [ ] I2C
 - [ ] Fuse programming
 - [ ] Communicate via Serial (second UART?)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

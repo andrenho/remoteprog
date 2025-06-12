@@ -116,37 +116,42 @@ static void update_last_data(Options& opt, lastcall::Data data)
 
 int main(int argc, char* argv[])
 {
-    Options opt = parse_options(argc, argv);
-    lastcall::Data last_data = lastcall::load();
-    update_last_data(opt, last_data);
+    try {
+        Options opt = parse_options(argc, argv);
+        lastcall::Data last_data = lastcall::load();
+        update_last_data(opt, last_data);
 
-    if (opt.server.empty())
-        throw std::runtime_error("A server configuration was not found. Please determine the server.");
+        if (opt.server.empty())
+            throw std::runtime_error("A server configuration was not found. Please determine the server.");
 
-    Request request = build_request(opt);
+        Request request = build_request(opt);
 
-    client::connect(opt.server);
-    Response response = client::send_request(request, opt.debug_mode);
+        client::connect(opt.server);
+        Response response = client::send_request(request, opt.debug_mode);
 
-    if (response.response_case() == Response::kResult) {
-again:
-        if (!response.result().messages().empty())
-            printf("%s\n", response.result().messages().c_str());
-        if (!response.result().errors().empty())
-            fprintf(stderr, "\e[0;31m%s\e[0m\n", response.result().errors().c_str());
-        switch (response.result().result_code()) {
-            case Response_ResultCode_SUCCESS:
-                return EXIT_SUCCESS;
-            case Response_ResultCode_FAILURE:
-                return EXIT_FAILURE;
-            case Response_ResultCode_ONGOING:
-                response = client::wait_for_next_message(opt.debug_mode);
+        if (response.response_case() == Response::kResult) {
+            again:
+                    if (!response.result().messages().empty())
+                        printf("%s\n", response.result().messages().c_str());
+            if (!response.result().errors().empty())
+                fprintf(stderr, "\e[0;31m%s\e[0m\n", response.result().errors().c_str());
+            switch (response.result().result_code()) {
+                case Response_ResultCode_SUCCESS:
+                    return EXIT_SUCCESS;
+                case Response_ResultCode_FAILURE:
+                    return EXIT_FAILURE;
+                case Response_ResultCode_ONGOING:
+                    response = client::wait_for_next_message(opt.debug_mode);
                 goto again;
-            default: break;
+                default: break;
+            }
         }
+
+        // TODO - other responses
+
+        return 0;
+    } catch (std::exception& e) {
+        fprintf(stderr, "client error: %s\n", e.what());
+        exit(EXIT_FAILURE);
     }
-
-    // TODO - other responses
-
-    return 0;
 }

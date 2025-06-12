@@ -101,8 +101,7 @@ static void upload_payload(int fd, Destination const& destination, std::string c
 
     switch (destination.microcontroller()) {
         case Destination_Microcontroller_PICO_1: {
-            command = { "./test.sh" };
-            // command = { "openocd", "-f", "/etc/remoteprog/raspberrypi-swd.cfg", "-f", "/etc/remoteprog/rp2040.cfg", "-c", "program " + payload_filename + "; " + (verify ? "verify; " : "") + "reset; exit" };
+            command = { "openocd", "-f", "/etc/remoteprog/raspberrypi-swd.cfg", "-f", "/etc/remoteprog/rp2040.cfg", "-c", "program " + payload_filename + "; " + (verify ? "verify; " : "") + "reset; exit" };
             break;
         }
         case Destination_Microcontroller_PICO_2:
