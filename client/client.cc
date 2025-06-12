@@ -48,4 +48,12 @@ Response send_request(Request const& request, bool debug_mode)
     return *r;
 }
 
+Response wait_for_next_message(bool debug_mode)
+{
+    auto r = wait_for_message<Response>(fd, debug_mode);
+    if (!r)
+        throw std::runtime_error("Connection closed.");
+    return *r;
+}
+
 }

@@ -130,12 +130,18 @@ int main(int argc, char* argv[])
 
     if (response.response_case() == Response::kResult) {
 again:
-        printf("%s\n", response.result().messages().c_str());
-        fprintf(stderr, "\e[0;31m%s\e[0m\n", response.result().errors().c_str());
+        if (!response.result().messages().empty())
+            printf("%s\n", response.result().messages().c_str());
+        if (!response.result().errors().empty())
+            fprintf(stderr, "\e[0;31m%s\e[0m\n", response.result().errors().c_str());
         switch (response.result().result_code()) {
-            case Response_ResultCode_SUCCESS: return EXIT_SUCCESS;
-            case Response_ResultCode_FAILURE: return EXIT_FAILURE;
-            case Response_ResultCode_ONGOING: goto again;
+            case Response_ResultCode_SUCCESS:
+                return EXIT_SUCCESS;
+            case Response_ResultCode_FAILURE:
+                return EXIT_FAILURE;
+            case Response_ResultCode_ONGOING:
+                response = client::wait_for_next_message(opt.debug_mode);
+                goto again;
             default: break;
         }
     }

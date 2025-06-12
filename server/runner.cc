@@ -58,8 +58,17 @@ void execute(int response_fd, char* args[], bool debug)
         ssize_t bytes = read(pipe, buf, sizeof(buf) - 1);
         if (bytes > 0) {
             buf[bytes] = '\0';
-            buffer += buf;  // TODO
+            buffer += buf;
         }
+    };
+
+    auto process_buffer = [](std::string& buffer) -> std::string {
+        size_t p = buffer.rfind('\n');
+        if (p == std::string::npos)
+            return "";
+        std::string to_send = buffer.substr(0, p);
+        buffer = buffer.substr(p + 1);
+        return to_send;
     };
 
     while (true) {
@@ -69,13 +78,27 @@ void execute(int response_fd, char* args[], bool debug)
 
         // Wait for data with timeout
         timeval timeout = {0, 100000}; // 100ms timeout
-        int result = select(max_fd + 1, &readfds, nullptr, nullptr, &timeout);
+        int r = select(max_fd + 1, &readfds, nullptr, nullptr, &timeout);
 
-        if (result > 0) {
+        // read from pipes
+        if (r > 0) {
             if (FD_ISSET(stdout_pipe[0], &readfds))
                 process_pipe(stdout_pipe[0], stdout_buffer, false);
             if (FD_ISSET(stderr_pipe[0], &readfds))
                 process_pipe(stderr_pipe[0], stderr_buffer, false);
+        }
+
+        // send partial responses
+        std::string stdout_to_send = process_buffer(stdout_buffer);
+        std::string stderr_to_send = process_buffer(stderr_buffer);
+        if (!stdout_to_send.empty() || !stderr_to_send.empty()) {
+            auto result = new Response_Result;
+            result->set_result_code(Response_ResultCode_ONGOING);
+            result->set_messages(stdout_to_send);
+            result->set_errors(stderr_to_send);
+            Response response;
+            response.set_allocated_result(result);
+            send_message(response_fd, response, debug);
         }
 
         // Check if child process is still running
