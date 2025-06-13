@@ -102,10 +102,8 @@ Request build_request(Options const& opt)
         auto reset = new Request_Reset;
         if (opt.wtime) reset->set_time_ms(*opt.wtime);
         request.set_allocated_reset(reset);
-    } else if (opt.command == "spi") {
-        throw std::runtime_error("Not implemented");  // TODO
-    } else if (opt.command == "i2c") {
-        throw std::runtime_error("Not implemented");  // TODO
+    } else if (opt.command == "spi" || opt.command == "i2c") {
+        throw std::runtime_error("Not applicable");
     } else {
         throw std::runtime_error("Invalid command '"s + opt.command + "'.");
     }

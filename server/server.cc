@@ -142,7 +142,7 @@ static void handle(int fd, bool debug_mode)
                 uint8_t response[request.spi_message().size()];
                 llcomm::spi_send((uint8_t const*) request.spi_message().data(), request.spi_message().size(), response);
                 Response r;
-                r.set_spi_message(std::string((const char *) response, request.spi_message().size()));
+                r.set_message(std::string((const char *) response, request.spi_message().size()));
                 send_message(fd, r, debug_mode);
                 break;
             }
@@ -154,7 +154,7 @@ static void handle(int fd, bool debug_mode)
                 uint8_t response[request.i2c_message().expect_response_sz()];
                 llcomm::i2c_send((uint8_t const*) request.i2c_message().data().data(), request.i2c_message().data().size(), response, request.i2c_message().expect_response_sz());
                 Response r;
-                r.set_i2c_message(std::string((const char *) response, request.i2c_message().expect_response_sz()));
+                r.set_message(std::string((const char *) response, request.i2c_message().expect_response_sz()));
                 send_message(fd, r, debug_mode);
                 break;
             }

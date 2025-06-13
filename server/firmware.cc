@@ -8,6 +8,7 @@
 
 #include "runner.hh"
 #include "zlib.h"
+#include "messages.pb.h"
 
 #define CHUNK 16384
 

@@ -5,6 +5,7 @@
 #include <optional>
 #include <string>
 
+#include "interactive.hh"
 #include "lastcall.hh"
 #include "options.hh"
 #include "request.hh"
@@ -124,9 +125,14 @@ int main(int argc, char* argv[])
         if (opt.server.empty())
             throw std::runtime_error("A server configuration was not found. Please determine the server.");
 
-        Request request = build_request(opt);
-
         client::connect(opt.server);
+
+        if (opt.command == "spi" || opt.command == "i2c") {
+            interactive::process(opt, opt.debug_mode);
+            return EXIT_SUCCESS;
+        }
+
+        Request request = build_request(opt);
         Response response = client::send_request(request, opt.debug_mode);
 
 again:
@@ -145,9 +151,9 @@ again:
                     goto again;
                 default: break;
             }
+        } else {
+            throw std::runtime_error("Unexpected response type");
         }
-
-        // TODO - other responses
 
         return 0;
     } catch (std::exception& e) {

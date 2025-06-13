@@ -78,9 +78,8 @@ message Response {
   }
 
   oneof response {
-    Result result             = 1;
-    bytes  spi_message        = 2;
-    bytes  i2c_message        = 3;
+    Result result      = 1;
+    bytes  message     = 2;
   }
 
 }
