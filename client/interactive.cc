@@ -7,31 +7,15 @@
 
 namespace interactive {
 
-void process_interactive(Options const& opt, bool debug_mode)
+static void send_message_and_print(Options const& opt, std::string bytes, int response_count, bool debug_mode)
 {
-}
-
-void process_noninteractive(Options const& opt, bool debug_mode)
-{
-    if (opt.file.empty())
-        throw std::runtime_error("File was not provided");
-
-    if (opt.command == "i2c" && !opt.response_count)
-        throw std::runtime_error("`--response-sz` or `-z` parameter is required for i2c message.");
-
-    std::ifstream f(opt.file);
-    if (!f.is_open())
-        throw std::runtime_error("Could not open file " + opt.file);
-    std::string content((std::istreambuf_iterator(f)), std::istreambuf_iterator<char>());
-    f.close();
-
     Request request;
     if (opt.command == "spi") {
-        request.set_spi_message(content);
+        request.set_spi_message(bytes);
     } else if (opt.command == "i2c") {
         auto msg = new Request_I2CMessage;
-        msg->set_expect_response_sz(*opt.response_count);
-        msg->set_data(content);
+        msg->set_expect_response_sz(response_count);
+        msg->set_data(bytes);
         request.set_allocated_i2c_message(msg);
     }
 
@@ -41,6 +25,40 @@ void process_noninteractive(Options const& opt, bool debug_mode)
     for (uint8_t c : response.message())
         printf("%02X ", c);
     printf("\n");
+}
+
+void process_interactive(Options const& opt, bool debug_mode)
+{
+    for (;;) {
+        printf("Bytes (Ctrl+D) ? ");
+
+        int value;
+        std::string bytes;
+        while (scanf("%x", &value) == 1)
+            bytes += (char) ((uint8_t) value);
+
+        int response_count = 0;
+        if (opt.command == "i2c") {
+            printf("Response size? ");
+            scanf("%d", &response_count);
+        }
+
+        send_message_and_print(opt, bytes, response_count, debug_mode);
+    }
+}
+
+void process_noninteractive(Options const& opt, bool debug_mode)
+{
+    if (opt.file.empty())
+        throw std::runtime_error("File was not provided");
+
+    std::ifstream f(opt.file);
+    if (!f.is_open())
+        throw std::runtime_error("Could not open file " + opt.file);
+    std::string content((std::istreambuf_iterator(f)), std::istreambuf_iterator<char>());
+    f.close();
+
+    send_message_and_print(opt, content, opt.response_count.value_or(0), debug_mode);
 }
 
 void process(Options const& opt, bool debug_mode)
