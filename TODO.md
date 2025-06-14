@@ -62,3 +62,9 @@
 - [ ] I2C
 - [ ] Fuse programming
 - [ ] Communicate via Serial (second UART?)
+
+## Final
+
+- [ ] Create service
+- [ ] Create install
+- [ ] Installation procedure in a fresh Pi
