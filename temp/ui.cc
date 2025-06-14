@@ -110,7 +110,7 @@ void beep_success()
 
 void beep_error()
 {
-    gpioSetPWMfrequency(BEEP, 200);
+    gpioSetPWMfrequency(BEEP, 100);
     gpioPWM(BEEP, 128);
     usleep(500000);
     gpioPWM(BEEP, 0);
@@ -159,4 +159,9 @@ void print(const char *str) {
 
 int main()
 {
+    ui::init();
+    ui::beep_error();
+    ui::print("Hello");
+
+    ui::close();
 }
