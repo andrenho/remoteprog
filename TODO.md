@@ -45,8 +45,8 @@
 - [x] Validate file type
 - [x] Server never fail
 - [x] Auto-detect firmware type (on server)
-- [ ] SPI communication (simulation)
-- [ ] I2C communication (simulation)
+- [x] SPI communication (simulation)
+- [x] I2C communication (simulation)
 
 ## PI
 

@@ -1,6 +1,9 @@
 #include "interactive.hh"
 
 #include <fstream>
+#include <iostream>
+#include <sstream>
+#include <vector>
 
 #include "client.hh"
 #include "messages.pb.h"
@@ -29,13 +32,22 @@ static void send_message_and_print(Options const& opt, std::string bytes, int re
 
 void process_interactive(Options const& opt, bool debug_mode)
 {
-    for (;;) {
-        printf("Bytes (Ctrl+D) ? ");
+    printf("(CTRL+D to stop)\n");
 
-        int value;
-        std::string bytes;
-        while (scanf("%x", &value) == 1)
-            bytes += (char) ((uint8_t) value);
+    for (;;) {
+        printf("Bytes? ");
+
+        std::string line;
+        std::vector<uint8_t> bytes;
+        std::string hex;
+
+        std::cin.ignore();
+        if (!std::getline(std::cin, line))
+            exit(EXIT_SUCCESS);
+
+        std::istringstream iss(line);
+        while (iss >> hex)
+            bytes.push_back((uint8_t) std::stoul(hex, nullptr, 16));
 
         int response_count = 0;
         if (opt.command == "i2c") {
@@ -43,7 +55,7 @@ void process_interactive(Options const& opt, bool debug_mode)
             scanf("%d", &response_count);
         }
 
-        send_message_and_print(opt, bytes, response_count, debug_mode);
+        send_message_and_print(opt, std::string(bytes.begin(), bytes.end()), response_count, debug_mode);
     }
 }
 

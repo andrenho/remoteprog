@@ -19,7 +19,7 @@ static int socket_fd = -1;
 
 namespace server {
 
-static void handle(int fd, bool debug_mode);
+static bool handle(int fd, bool debug_mode);
 static void send_error(int fd, std::string const& error_msg, bool debug_mode);
 static void send_success(int fd, bool debug);
 
@@ -91,31 +91,36 @@ void listen(bool debug_mode)
         int conn_fd = accept(socket_fd, (sockaddr *) &client_addr, &addr_size);
         if (conn_fd == -1)
             throw std::runtime_error("accept(): "s + strerror(errno));
+
         printf("Connection received.\n");
-        try {
-            handle(conn_fd, debug_mode);
-        } catch (std::exception& e) {
-            fprintf(stderr, "error: %s\n", e.what());
-            send_error(conn_fd, e.what(), debug_mode);
+        bool running = true;
+        while (running) {
+            try {
+                running = handle(conn_fd, debug_mode);
+            } catch (std::exception& e) {
+                fprintf(stderr, "error: %s\n", e.what());
+                send_error(conn_fd, e.what(), debug_mode);
+            }
         }
+        printf("Connection closed.\n");
     }
 }
 
-static void handle(int fd, bool debug_mode)
+static bool handle(int fd, bool debug_mode)
 {
     // receive request
     Request request;
     try {
         auto r = wait_for_message<Request>(fd, debug_mode);
-        if (!r) {
+        if (!r) {   // client closed connection
             close(fd);
-            return;  // client disconnected
+            return false;
         }
         request = *r;
     } catch (std::exception& e) {
         send_error(fd, "Invalid protobuf message", debug_mode);
         close(fd);
-        return;
+        return true;
     }
 
     // act on message
@@ -165,13 +170,12 @@ static void handle(int fd, bool debug_mode)
             case Request::REQUEST_NOT_SET:
                 send_error(fd, "Protobuf message without a request", debug_mode);
             close(fd);
-            return;
         }
     } catch (std::exception& e) {
         send_error(fd, e.what(), debug_mode);
     }
 
-    handle(fd, debug_mode);  // next message
+    return true;
 }
 
 static void send_success(int fd, bool debug)
