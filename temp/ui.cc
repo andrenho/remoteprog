@@ -78,6 +78,20 @@ static void init_display() {
     write4Bit(0x0F);
 }
 
+static void writeByte(uint8_t data) {
+  write4Bit(data >> 4);
+  write4Bit(data);
+}
+
+static void writeCommand(uint8_t data) {
+  gpioWrite(RS, 0);
+  writeByte(data);
+}
+
+static void writeData(uint8_t data) {
+  gpioWrite(RS, 1);
+  writeByte(data);
+}
 
 void init()
 {
@@ -120,19 +134,16 @@ void beep_error()
     gpioPWM(BEEP, 0);
 }
 
-static void writeByte(uint8_t data) {
-  write4Bit(data >> 4);
-  write4Bit(data);
+
+void print(const char *str) {
+  while (*str) {
+    writeData(*str);
+    str += 1;
+  }
 }
 
-static void writeCommand(uint8_t data) {
-  gpioWrite(RS, 0);
-  writeByte(data);
-}
-
-static void writeData(uint8_t data) {
-  gpioWrite(RS, 1);
-  writeByte(data);
+void clear(){
+   writeCommand(0x01);
 }
 
 void setPosition(uint8_t x, uint8_t y) {
@@ -144,24 +155,15 @@ void setPosition(uint8_t x, uint8_t y) {
   }
 }
 
-void print(const char *str) {
-  while (*str) {
-    writeData(*str);
-    str += 1;
-  }
-}
-
- void clear(){
-   writeCommand(0x01);
- }
-
 }
 
 int main()
 {
     ui::init();
-    ui::beep_error();
+    ui::beep_success();
+    ui::clear();
     ui::print("Hello");
+    ui::beep_success();
 
     ui::close();
 }
