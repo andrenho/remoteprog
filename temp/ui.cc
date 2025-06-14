@@ -7,7 +7,7 @@
 
 #define BEEP 16
 #define RS 17
-#define EM 13
+#define EM 27
 #define D4 0
 #define D5 5
 #define D6 6
