@@ -1,5 +1,7 @@
-CPPFLAGS=-Wall -Wextra
+CPPFLAGS=-Wall -Wextra -I.
 LDFLAGS=-pthread -lpigpio
+
+all: test
 
 test: ui.o
 	g++ -o $@ $^ $(LDFLAGS)
