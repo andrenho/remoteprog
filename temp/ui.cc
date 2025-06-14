@@ -57,25 +57,30 @@ static void init_display() {
     gpioWrite(RS, 0);
     gpioWrite(EM, 0);
 
-    write4Bit(0x03);
+    write4Bit(0b0011);
     usleep(4500);
-    write4Bit(0x03);
+    write4Bit(0b0011);
     usleep(4500);
-    write4Bit(0x03);
+    write4Bit(0b0011);
     usleep(150);
-    write4Bit(0x02);
+    write4Bit(0b0010);
+    usleep(150);
 
-    write4Bit(0x02);
-    write4Bit(0x0C);
-    write4Bit(0x00);
-    write4Bit(0x08);
-    write4Bit(0x00);
-    write4Bit(0x01);
-    write4Bit(0x00);
-    write4Bit(0x06);
+    write4Bit(0b0010);  // function set
+    write4Bit(0b1000);
 
-    write4Bit(0x00);
-    write4Bit(0x0F);
+    write4Bit(0b0000);  // display control
+    write4Bit(0b1000);
+
+    write4Bit(0b0000);  // clear display
+    write4Bit(0b0001);
+    usleep(3000);
+
+    write4Bit(0b0000);  // clear display
+    write4Bit(0b0111);
+
+    write4Bit(0b0000);
+    write4Bit(0b1111);
 }
 
 static void writeByte(uint8_t data) {
