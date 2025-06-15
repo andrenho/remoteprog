@@ -5601,6 +5601,16 @@
 	)
 	(wire
 		(pts
+			(xy 17.78 31.75) (xy 35.56 31.75)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3e68b69c-a847-4b56-88e1-a82728b4871d")
+	)
+	(wire
+		(pts
 			(xy 48.26 69.85) (xy 58.42 69.85)
 		)
 		(stroke
@@ -6058,16 +6068,6 @@
 			(type default)
 		)
 		(uuid "7d79e288-e490-4ca6-a2cc-14a358ff91f5")
-	)
-	(wire
-		(pts
-			(xy 17.78 41.91) (xy 35.56 41.91)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "822beeb9-a487-4dd7-997f-eb63f11f31cc")
 	)
 	(wire
 		(pts
@@ -7129,6 +7129,16 @@
 		)
 		(uuid "167182eb-ec82-488a-9112-fd4a05c5b7a6")
 	)
+	(label "GPIO19 (D4)"
+		(at 33.02 31.75 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "16ad455f-c324-466c-87b6-bd03965bf1d9")
+	)
 	(label "GPIO23 (AVMISO)"
 		(at 49.53 57.15 0)
 		(effects
@@ -7858,16 +7868,6 @@
 			(justify right bottom)
 		)
 		(uuid "f56f98c5-d7d3-45f3-ae13-e7e86f3f0204")
-	)
-	(label "GPIO0 (D4)"
-		(at 33.02 41.91 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "f940eb67-fda1-41f6-a9dc-0248f2d946e9")
 	)
 	(label "RST-5V"
 		(at 212.09 139.7 180)
