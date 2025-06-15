@@ -8,10 +8,10 @@
 #define BEEP 16
 #define RS 17
 #define EM 27
-#define D4 0
+#define D4 19
 #define D5 5
 #define D6 6
-#define D7 7
+#define D7 13
 
 namespace ui {
 
@@ -53,7 +53,7 @@ static void write4Bit(uint8_t data) {
 }
 
 static void init_display() {
-    usleep(50000);
+    usleep(100000);
     gpioWrite(RS, 0);
     gpioWrite(EM, 0);
 
@@ -63,7 +63,8 @@ static void init_display() {
     usleep(4500);
     write4Bit(0b0011);
     usleep(150);
-    write4Bit(0b0010);
+
+    write4Bit(0b0010);  // initial function set
     usleep(150);
 
     write4Bit(0b0010);  // function set
@@ -76,11 +77,11 @@ static void init_display() {
     write4Bit(0b0001);
     usleep(3000);
 
-    write4Bit(0b0000);  // clear display
-    write4Bit(0b0111);
+    write4Bit(0b0000);  // entry mode set
+    write4Bit(0b0110);
 
-    write4Bit(0b0000);
-    write4Bit(0b1111);
+    write4Bit(0b0000);  // display control
+    write4Bit(0b1100);
 }
 
 static void writeByte(uint8_t data) {
