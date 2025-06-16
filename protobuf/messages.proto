@@ -41,7 +41,7 @@ message Request {
   }
 
   message I2CConfig {
-    uint32 baud = 1;
+    // uint32 baud = 1;
     uint32 device = 2;
   }
 

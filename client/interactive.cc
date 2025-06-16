@@ -75,6 +75,8 @@ void process_noninteractive(Options const& opt, bool debug_mode)
 
 void process(Options const& opt, bool debug_mode)
 {
+    // TODO - SPI/I2C config
+
     if (opt.interactive)
         process_interactive(opt, debug_mode);
     else
