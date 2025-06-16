@@ -1,6 +1,12 @@
 # pico-pi-upload-server
 Run this server in a Raspberry Pi connected to a Pico Pi using SWD, and call a HTTP service to upload a new firmware.
 
+## Install on a new Pico
+
+```sh
+sudo apt-get install zlib1g-dev protobuf-compiler
+```
+
 ## Requirements
 
 This software is meant to run a Raspberry Pi 4 or greater. The following software is required to be installed:
