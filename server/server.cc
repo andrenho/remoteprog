@@ -154,6 +154,8 @@ static bool handle(int fd, bool debug_mode)
     }
 
     ui::set_position(0, 1);
+    ui::print("                ");
+    ui::set_position(0, 1);
 
     // act on message
     try {

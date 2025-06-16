@@ -50,7 +50,8 @@
 
 ## PI
 
-- [ ] LCD code + beeper
+- [x] LCD code + beeper
+- [ ] Create service, install
 - [ ] Reset
 - [ ] Test connection (AVR/Pico)
   - [ ] Configuration files
