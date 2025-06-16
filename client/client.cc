@@ -10,7 +10,7 @@
 using namespace std::string_literals;
 
 #include "messages.pb.h"
-#include "../protobuf/comm.hh"
+#include "comm.hh"
 
 namespace client {
 

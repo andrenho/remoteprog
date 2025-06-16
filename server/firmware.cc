@@ -166,15 +166,15 @@ void program_fuses(int fd, Request_AvrFuseProgramming const& fuses, bool debug_m
     std::vector<std::string> command;
     if (fuses.destination().microcontroller() == Destination_Microcontroller_AUTO || fuses.destination().microcontroller() == Destination_Microcontroller_AVR) {
         char flow[40], fhigh[40], fext[40];
-        sprintf(flow, "lfuse:w:0x%02X:m", fuses.low());
-        sprintf(fhigh, "hfuse:w:0x%02X:m", fuses.high());
+        snprintf(flow, sizeof flow, "lfuse:w:0x%02X:m", fuses.low());
+        snprintf(fhigh, sizeof fhigh, "hfuse:w:0x%02X:m", fuses.high());
         command = {
             "avrdude", "-p", fuses.destination().part(), "-C", "/etc/remoteprog/avrdude.conf", "-c", "remoteprog",
             "-U", std::string(flow),
             "-U", std::string(fhigh)
         };
         if (fuses.has_extended()) {
-            sprintf(fext, "efuse:w:0x%02X:m", fuses.extended());
+            snprintf(fext, sizeof fext, "efuse:w:0x%02X:m", fuses.extended());
             command.emplace_back("-U");
             command.emplace_back(std::string(fext));
         }

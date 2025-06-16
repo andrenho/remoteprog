@@ -3,14 +3,16 @@ all: remoteprog
 include ../protobuf/protobuf.mk
 
 OBJ = main.o client.o lastcall.o request.o interactive.o messages.pb.o
-CPPFLAGS = -Wall -Wextra -std=c++20 `pkg-config --cflags protobuf zlib`
+CPPFLAGS = -Wall -Wextra -std=c++20 -I. -I../protobuf `pkg-config --cflags protobuf zlib`
 LDFLAGS = `pkg-config --libs protobuf zlib`
 
 ifndef RELEASE
 	CPPFLAGS += -g -ggdb -O0
 endif
 
-main.o client.o: messages.pb.o
+main.o: messages.pb.o
+
+client.o: messages.pb.o
 
 remoteprog: ${OBJ}
 	g++ -o $@ $^ ${LDFLAGS}

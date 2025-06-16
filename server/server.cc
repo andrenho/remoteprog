@@ -1,7 +1,7 @@
 #include "server.hh"
 
 #include <unistd.h>
-#include <sys/types.h>
+#include <arpa/inet.h>
 #include <sys/socket.h>
 #include <netdb.h>
 
@@ -14,6 +14,7 @@ using namespace std::string_literals;
 
 #include "messages.pb.h"
 #include "../protobuf/comm.hh"
+#include "ui.hh"
 
 static int socket_fd = -1;
 
@@ -22,6 +23,35 @@ namespace server {
 static bool handle(int fd, bool debug_mode);
 static void send_error(int fd, std::string const& error_msg, bool debug_mode);
 static void send_success(int fd, bool debug);
+
+std::optional<std::string> local_ip()
+{
+    int sock = socket(PF_INET, SOCK_DGRAM, 0);
+    sockaddr_in loopback {};
+
+    if (sock == -1)
+        return {};
+
+    std::memset(&loopback, 0, sizeof(loopback));
+    loopback.sin_family = AF_INET;
+    loopback.sin_addr.s_addr = 1337;   // can be any IP address
+    loopback.sin_port = htons(9);      // using debug port
+
+    if (connect(sock, reinterpret_cast<sockaddr*>(&loopback), sizeof(loopback)) == -1)
+        return {};
+
+    socklen_t addrlen = sizeof(loopback);
+    if (getsockname(sock, reinterpret_cast<sockaddr*>(&loopback), &addrlen) == -1)
+        return {};
+
+    close(sock);
+
+    char buf[INET_ADDRSTRLEN];
+    if (inet_ntop(AF_INET, &loopback.sin_addr, buf, INET_ADDRSTRLEN) == nullptr)
+        return {};
+
+    return buf;
+}
 
 void listen(bool debug_mode)
 {
@@ -37,7 +67,7 @@ void listen(bool debug_mode)
         throw std::runtime_error("getaddrinfo(): "s + gai_strerror(rv));
 
     // loop through all the results and bind to the first we can
-    addrinfo* p = nullptr;
+    addrinfo* p;
     for (p = server_info; p != nullptr; p = p->ai_next) {
 
         // create a socket, which apparently is no good by itself because it's not
@@ -117,23 +147,31 @@ static bool handle(int fd, bool debug_mode)
             return false;
         }
         request = *r;
-    } catch (std::exception& e) {
+    } catch (std::exception&) {
         send_error(fd, "Invalid protobuf message", debug_mode);
         close(fd);
         return true;
     }
 
+    ui::set_position(0, 1);
+
     // act on message
     try {
         switch (request.request_case()) {
             case Request::kFirmwareUpload:
+                ui::print("Uploading...");
                 firmware::upload(fd, request.firmware_upload(), debug_mode);
+                ui::print("Done.");
                 break;
             case Request::kTestConnection:
+                ui::print("Testing...");
                 firmware::test_connection(fd, request.test_connection(), debug_mode);
+                ui::print("Done.");
                 break;
             case Request::kFuseProgramming:
+                ui::print("Programming...");
                 firmware::program_fuses(fd, request.fuse_programming(), debug_mode);
+                ui::print("Done.");
                 break;
             case Request::kReset:
                 llcomm::reset(request.reset());
@@ -144,6 +182,7 @@ static bool handle(int fd, bool debug_mode)
                 send_success(fd, debug_mode);
                 break;
             case Request::kSpiMessage: {
+                ui::print("SPI");
                 uint8_t response[request.spi_message().size()];
                 llcomm::spi_send((uint8_t const*) request.spi_message().data(), request.spi_message().size(), response);
                 Response r;
@@ -156,6 +195,7 @@ static bool handle(int fd, bool debug_mode)
                 send_success(fd, debug_mode);
                 break;
             case Request::kI2CMessage:{
+                ui::print("I2C");
                 uint8_t response[request.i2c_message().expect_response_sz()];
                 llcomm::i2c_send((uint8_t const*) request.i2c_message().data().data(), request.i2c_message().data().size(), response, request.i2c_message().expect_response_sz());
                 Response r;
@@ -173,6 +213,7 @@ static bool handle(int fd, bool debug_mode)
         }
     } catch (std::exception& e) {
         send_error(fd, e.what(), debug_mode);
+        ui::print("ERROR");
     }
 
     return true;

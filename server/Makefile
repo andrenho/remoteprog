@@ -3,7 +3,7 @@ all: remoteprog-server
 include ../protobuf/protobuf.mk
 
 OBJ = main.o server.o firmware.o runner.o llcomm.o ui.o messages.pb.o
-CPPFLAGS = -Wall -Wextra -std=c++20 -I. `pkg-config --cflags protobuf zlib`
+CPPFLAGS = -Wall -Wextra -std=c++20 -I. -I../protobuf `pkg-config --cflags protobuf zlib`
 LDFLAGS = `pkg-config --libs protobuf zlib` -pthread -lpigpio
 
 CPPFLAGS += -DSIMULATE_LL

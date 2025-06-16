@@ -14,6 +14,12 @@ int main(int argc, char* argv[])
     if (argc == 2 && strcmp(argv[1], "-d") == 0)
         debug_mode = true;
 
+    auto ip = server::local_ip();
+
     ui::init();
+    if (ip) {
+        ui::set_position(0, 0);
+        ui::print(ip->c_str());
+    }
     server::listen(debug_mode);
 }

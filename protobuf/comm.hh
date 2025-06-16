@@ -11,7 +11,7 @@
 #include <string>
 using namespace std::string_literals;
 
-#include "../server/messages.pb.h"
+#include "messages.pb.h"
 
 template <typename T>
 void send_message(int fd, T const& message, bool debug=false)
