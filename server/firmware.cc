@@ -16,7 +16,7 @@ namespace firmware {
 
 std::string temp_filename()
 {
-    return std::string(getenv("TMPDIR")) + "/remoteprog.bin";
+    return "/tmp/remoteprog.bin";
 }
 
 std::string save_file(std::string const& payload)

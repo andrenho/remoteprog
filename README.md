@@ -4,7 +4,7 @@ Run this server in a Raspberry Pi connected to a Pico Pi using SWD, and call a H
 ## Install on a new Pico
 
 ```sh
-sudo apt-get install zlib1g-dev protobuf-compiler
+sudo apt-get install zlib1g-dev protobuf-compiler avrdude
 ```
 
 ## Requirements
