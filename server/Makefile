@@ -6,10 +6,12 @@ OBJ = main.o server.o firmware.o runner.o llcomm.o ui.o messages.pb.o
 CPPFLAGS = -Wall -Wextra -std=c++20 -I. -I../protobuf `pkg-config --cflags protobuf zlib`
 LDFLAGS = `pkg-config --libs protobuf zlib` -pthread -lpigpio
 
-CPPFLAGS += -DSIMULATE_LL
+# CPPFLAGS += -DSIMULATE_LL
 
-ifndef RELEASE
+ifdef DEBUG
 	CPPFLAGS += -ggdb -O0
+else
+	CPPFLAGS += -O3
 endif
 
 server.o: messages.pb.o

@@ -5,6 +5,9 @@
 
 namespace llcomm {
 
+void init();
+void close();
+
 void reset(Request_Reset const& reset);
 
 void i2c_configure(Request_I2CConfig const& cfg);

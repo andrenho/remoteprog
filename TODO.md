@@ -51,6 +51,8 @@
 ## PI
 
 - [x] LCD code + beeper
+- [ ] Low level communication
+- [ ] Install OpenOCD
 - [ ] Create service, install
 - [ ] Reset
 - [ ] Test connection (AVR/Pico)

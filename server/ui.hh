@@ -6,7 +6,6 @@
 namespace ui {
 
 void init();
-void close();
 
 void beep_success();
 void beep_error();

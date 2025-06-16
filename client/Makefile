@@ -6,8 +6,10 @@ OBJ = main.o client.o lastcall.o request.o interactive.o messages.pb.o
 CPPFLAGS = -Wall -Wextra -std=c++20 -I. -I../protobuf `pkg-config --cflags protobuf zlib`
 LDFLAGS = `pkg-config --libs protobuf zlib`
 
-ifndef RELEASE
+ifdef RELEASE
 	CPPFLAGS += -g -ggdb -O0
+else
+	CPPFLAGS += -O3
 endif
 
 main.o: messages.pb.o

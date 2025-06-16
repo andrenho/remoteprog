@@ -106,9 +106,6 @@ static void write_data(uint8_t data)
 
 void init()
 {
-    if (gpioInitialise() < 0)
-        throw std::runtime_error("Could not initialize pigpio.");
-
     gpioSetMode(BEEP, PI_OUTPUT);
     gpioSetMode(RS, PI_OUTPUT);
     gpioSetMode(EM, PI_OUTPUT);
@@ -118,11 +115,6 @@ void init()
     gpioSetMode(D7, PI_OUTPUT);
 
     init_display();
-}
-
-void close()
-{
-    gpioTerminate();
 }
 
 void beep_success()
