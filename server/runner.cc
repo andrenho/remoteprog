@@ -16,7 +16,7 @@ using namespace std::string_literals;
 
 namespace runner {
 
-void execute(int response_fd, std::vector<std::string> const& command, bool debug)
+bool execute(int response_fd, std::vector<std::string> const& command, bool debug)
 {
     char** args = (char **) calloc(sizeof(char *), command.size() + 1);
     for (size_t i = 0; i < command.size(); ++i) {
@@ -137,6 +137,8 @@ void execute(int response_fd, std::vector<std::string> const& command, bool debu
     Response response;
     response.set_allocated_result(result);
     send_message(response_fd, response, debug);
+
+    return status == 0;
 }
 
 }

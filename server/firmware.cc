@@ -119,7 +119,7 @@ static Destination find_destination(Destination destination, std::string const& 
     return destination;
 }
 
-static void upload_payload(int fd, Destination const& destination, std::string const& payload_filename, bool verify, bool debug_mode)
+static bool upload_payload(int fd, Destination const& destination, std::string const& payload_filename, bool verify, bool debug_mode)
 {
     std::vector<std::string> command;
 
@@ -140,10 +140,10 @@ static void upload_payload(int fd, Destination const& destination, std::string c
             throw std::runtime_error("Unreachable code");
     }
 
-    runner::execute(fd, command, debug_mode);
+    return runner::execute(fd, command, debug_mode);
 }
 
-void test_connection(int fd, Destination const& dest, bool debug_mode)
+bool test_connection(int fd, Destination const& dest, bool debug_mode)
 {
     std::vector<std::string> command;
 
@@ -159,10 +159,10 @@ void test_connection(int fd, Destination const& dest, bool debug_mode)
             throw std::runtime_error("Unreachable code");
     }
 
-    runner::execute(fd, command, debug_mode);
+    return runner::execute(fd, command, debug_mode);
 }
 
-void program_fuses(int fd, Request_AvrFuseProgramming const& fuses, bool debug_mode)
+bool program_fuses(int fd, Request_AvrFuseProgramming const& fuses, bool debug_mode)
 {
     std::vector<std::string> command;
     if (fuses.destination().microcontroller() == Destination_Microcontroller_AUTO || fuses.destination().microcontroller() == Destination_Microcontroller_AVR) {
@@ -183,10 +183,10 @@ void program_fuses(int fd, Request_AvrFuseProgramming const& fuses, bool debug_m
         throw std::runtime_error("Fuse programming is only supported for AVR.");
     }
 
-    runner::execute(fd, command, debug_mode);
+    return runner::execute(fd, command, debug_mode);
 }
 
-void upload(int fd, Request_FirmwareUpload const& req, bool debug_mode)
+bool upload(int fd, Request_FirmwareUpload const& req, bool debug_mode)
 {
     std::string filename;
     if (req.payload_compressed())
@@ -202,10 +202,12 @@ void upload(int fd, Request_FirmwareUpload const& req, bool debug_mode)
     destination = find_destination(destination, filename, debug_mode);
 
     // upload payload to microcontroller
-    upload_payload(fd, destination, filename, req.verify(), debug_mode);
+    bool r = upload_payload(fd, destination, filename, req.verify(), debug_mode);
 
     // delete file
     unlink(filename.c_str());
+
+    return r;
 }
 
 }

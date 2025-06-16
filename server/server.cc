@@ -160,21 +160,27 @@ static bool handle(int fd, bool debug_mode)
         switch (request.request_case()) {
             case Request::kFirmwareUpload:
                 ui::print("Uploading...");
-                firmware::upload(fd, request.firmware_upload(), debug_mode);
                 ui::set_position(0, 1);
-                ui::print("Done.       ");
+                if (firmware::upload(fd, request.firmware_upload(), debug_mode))
+                    ui::print("Done.       ");
+                else
+                    ui::print("ERROR       ");
                 break;
             case Request::kTestConnection:
                 ui::print("Testing...");
-                firmware::test_connection(fd, request.test_connection(), debug_mode);
                 ui::set_position(0, 1);
-                ui::print("Done.     ");
+                if (firmware::test_connection(fd, request.test_connection(), debug_mode))
+                    ui::print("Done.     ");
+                else
+                    ui::print("ERROR     ");
                 break;
             case Request::kFuseProgramming:
                 ui::print("Programming...");
-                firmware::program_fuses(fd, request.fuse_programming(), debug_mode);
                 ui::set_position(0, 1);
-                ui::print("Done.         ");
+                if (firmware::program_fuses(fd, request.fuse_programming(), debug_mode))
+                    ui::print("Done.         ");
+                else
+                    ui::print("ERROR         ");
                 break;
             case Request::kReset:
                 llcomm::reset(request.reset());
