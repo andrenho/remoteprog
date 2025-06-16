@@ -1,5 +1,6 @@
 #include "firmware.hh"
 
+#include <algorithm>
 #include <fstream>
 #include <filesystem>
 #include <vector>
@@ -53,7 +54,7 @@ std::string uncompress_file(std::string const& payload)
     /* decompress until deflate stream ends or end of file */
     size_t ptr = 0;
     do {
-        strm.avail_in = std::min(payload.length() - ptr, (unsigned long) CHUNK);
+        strm.avail_in = std::min((unsigned long) (payload.length() - ptr), (unsigned long) CHUNK);
         if (strm.avail_in == 0)
             break;
         strm.next_in = (uint8_t *) &payload[ptr];

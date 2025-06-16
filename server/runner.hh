@@ -2,6 +2,7 @@
 #define RUNNER_HH
 
 #include <string>
+#include <vector>
 
 namespace runner {
 
