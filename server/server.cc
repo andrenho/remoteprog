@@ -161,17 +161,17 @@ static bool handle(int fd, bool debug_mode)
             case Request::kFirmwareUpload:
                 ui::print("Uploading...");
                 firmware::upload(fd, request.firmware_upload(), debug_mode);
-                ui::print("Done.");
+                ui::print("Done.       ");
                 break;
             case Request::kTestConnection:
                 ui::print("Testing...");
                 firmware::test_connection(fd, request.test_connection(), debug_mode);
-                ui::print("Done.");
+                ui::print("Done.     ");
                 break;
             case Request::kFuseProgramming:
                 ui::print("Programming...");
                 firmware::program_fuses(fd, request.fuse_programming(), debug_mode);
-                ui::print("Done.");
+                ui::print("Done.         ");
                 break;
             case Request::kReset:
                 llcomm::reset(request.reset());
@@ -213,7 +213,8 @@ static bool handle(int fd, bool debug_mode)
         }
     } catch (std::exception& e) {
         send_error(fd, e.what(), debug_mode);
-        ui::print("ERROR");
+        ui::set_position(0, 1);
+        ui::print("ERROR           ");
     }
 
     return true;

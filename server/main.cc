@@ -17,9 +17,10 @@ int main(int argc, char* argv[])
     auto ip = server::local_ip();
 
     ui::init();
-    if (ip) {
-        ui::set_position(0, 0);
+    ui::set_position(0, 0);
+    if (ip)
         ui::print(ip->c_str());
-    }
+    else
+        ui::print("No network");
     server::listen(debug_mode);
 }
