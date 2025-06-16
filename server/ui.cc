@@ -170,14 +170,3 @@ void set_position(uint8_t x, uint8_t y)
 }
 
 }
-
-int main()
-{
-    ui::init();
-    ui::beep_success();
-    ui::clear();
-    ui::print("Hello");
-    ui::beep_success();
-
-    ui::close();
-}

@@ -4,6 +4,8 @@
 #include <cstdlib>
 #include <ctime>
 
+#include "ui.hh"
+
 int main(int argc, char* argv[])
 {
     srand(time(nullptr));
@@ -12,5 +14,6 @@ int main(int argc, char* argv[])
     if (argc == 2 && strcmp(argv[1], "-d") == 0)
         debug_mode = true;
 
+    ui::init();
     server::listen(debug_mode);
 }
