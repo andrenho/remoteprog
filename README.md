@@ -4,7 +4,13 @@ Run this server in a Raspberry Pi connected to a Pico Pi using SWD, and call a H
 ## Install on a new Pico
 
 ```sh
-sudo apt-get install zlib1g-dev protobuf-compiler avrdude
+sudo apt-get install zlib1g-dev protobuf-compiler avrdude libgpiod-dev libtool
+git clone -b sdk-2.0.0 https://github.com/raspberrypi/openocd.git --remote-submodules
+cd openocd
+./bootstrap
+./configure --disable-werror --enable-bcm2835gpio
+make
+sudo make install
 ```
 
 ## Requirements
