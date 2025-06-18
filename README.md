@@ -3,6 +3,10 @@
 Remotely program Raspberry Pi Pico and AVR microcontrollers by installing this application on a Raspberry Pi connected
 to the circuit below.
 
+## Schematic
+
+
+
 ## Usage
 
 Install the server on the Raspberry Pi. From the PC computer, compile your program and upload it by calling the client.
