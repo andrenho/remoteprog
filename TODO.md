@@ -51,19 +51,11 @@
 ## PI
 
 - [x] LCD code + beeper
-- [ ] Low level communication
-- [ ] Install OpenOCD
+- [x] Low level communication
+- [x] Install OpenOCD
 - [ ] Create service, install
-- [ ] Reset
-- [ ] Test connection (AVR/Pico)
-  - [ ] Configuration files
-- [ ] Upload (AVR/Pico)
-  - [ ] Upload
-  - [ ] Check for general errors (software not installed, etc)
-  - [ ] Add verbose mode
-- [ ] SPI
-- [ ] I2C
-- [ ] Fuse programming
+- [ ] README
+- [ ] Test
 - [ ] Communicate via Serial (second UART?)
 
 ## Final

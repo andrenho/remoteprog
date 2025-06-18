@@ -163,26 +163,35 @@ static bool handle(int fd, bool debug_mode)
             case Request::kFirmwareUpload:
                 ui::print("Uploading...");
                 ui::set_position(0, 1);
-                if (firmware::upload(fd, request.firmware_upload(), debug_mode))
+                if (firmware::upload(fd, request.firmware_upload(), debug_mode)) {
                     ui::print("Done.       ");
-                else
+                    ui::beep_success();
+                } else {
                     ui::print("ERROR       ");
+                    ui::beep_error();
+                }
                 break;
             case Request::kTestConnection:
                 ui::print("Testing...");
                 ui::set_position(0, 1);
-                if (firmware::test_connection(fd, request.test_connection(), debug_mode))
+                if (firmware::test_connection(fd, request.test_connection(), debug_mode)) {
                     ui::print("Done.     ");
-                else
+                    ui::beep_success();
+                } else {
                     ui::print("ERROR     ");
+                    ui::beep_error();
+                }
                 break;
             case Request::kFuseProgramming:
                 ui::print("Programming...");
                 ui::set_position(0, 1);
-                if (firmware::program_fuses(fd, request.fuse_programming(), debug_mode))
+                if (firmware::program_fuses(fd, request.fuse_programming(), debug_mode)) {
                     ui::print("Done.         ");
-                else
+                    ui::beep_success();
+                } else {
                     ui::print("ERROR         ");
+                    ui::beep_error();
+                }
                 break;
             case Request::kReset:
                 llcomm::reset(request.reset());
@@ -226,6 +235,7 @@ static bool handle(int fd, bool debug_mode)
         send_error(fd, e.what(), debug_mode);
         ui::set_position(0, 1);
         ui::print("ERROR           ");
+        ui::beep_error();
     }
 
     return true;

@@ -24,6 +24,7 @@ int main(int argc, char* argv[])
         ui::print(ip->c_str());
     else
         ui::print("No network");
+    ui::beep_success();
     server::listen(debug_mode);
 
     llcomm::close();  // TODO - catch SIGINT

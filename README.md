@@ -11,6 +11,8 @@ cd openocd
 ./configure --disable-werror --enable-bcm2835gpio
 make
 sudo make install
+# TODO - enable SPI/I2C in /boot/firmware/config.txt
+# TODO - make install application
 ```
 
 ## Requirements

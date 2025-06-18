@@ -19,5 +19,11 @@ client.o: messages.pb.o
 remoteprog: ${OBJ}
 	g++ -o $@ $^ ${LDFLAGS}
 
+install: remoteprog
+	cp -f remoteprog /usr/local/bin/
+
+uninstall:
+	rm -f /usr/local/bin/remoteprog
+
 clean: protobuf-clean
 	rm -f remoteprog *.o ${OBJ}

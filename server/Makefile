@@ -21,3 +21,10 @@ remoteprog-server: ${OBJ}
 
 clean: protobuf-clean
 	rm -f remoteprog-server *.o ${OBJ}
+
+install: remoteprog-server
+	cp -f remoteprog-server /usr/local/bin/
+	cp -f extra/remoteprog.service /etc/systemd/system/
+	mkdir -p /etc/remoteprog
+	cp -f extra/avrdude.conf /etc/remoteprog/
+	cp -f extra/raspberrypi-swd.cfg /etc/remoteprog/
