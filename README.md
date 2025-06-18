@@ -1,75 +1,92 @@
-# pico-pi-upload-server
-Run this server in a Raspberry Pi connected to a Pico Pi using SWD, and call a HTTP service to upload a new firmware.
+# remoteprog
 
-## Install on a new Pico
+Remotely program Raspberry Pi Pico and AVR microcontrollers by installing this application on a Raspberry Pi connected
+to the circuit below.
 
-```sh
+## Usage
+
+Install the server on the Raspberry Pi. From the PC computer, compile your program and upload it by calling the client.
+It can also be used for additional functions, such as fuse programming, or SPI/I2C debugging.
+
+```
+Usage: ./remoteprog COMMAND [OPTIONS]
+Commands:
+  upload FILE [-c|--core=CORE] [-p|--part=PART] [--baud=BAUD] [-V|--no-verify] [-v|--verbose]
+  test [-c|--core=CORE] [-p|--part=PART]
+  fuse LOW HIGH EXTENDED [-p|--part=PART]
+  reset [-t|--time MS]
+  spi [FILE] [--baud=BAUD] [--pol=POL] [--pha=PHA] [-I|--interactive]
+  i2c [FILE] [--baud=BAUD] [-z|--response-sz=COUNT] [-I|--interactive]
+General options:
+  -s | --server         server address (will use latest if not present)
+  -d | --debug          debug mode
+Cores:
+  auto, pico1, pico2, avr
+```
+
+# Installation instructions
+
+## Install client on the Computer
+
+```shell
+git clone --remote-submodules https://github.com/andrenho/remoteprog
+cd remoteprog/client
+make
+sudo make install
+```
+
+## Install server on the Raspberry Pi
+
+1. Install dependencies
+
+```shell
 sudo apt-get install zlib1g-dev protobuf-compiler avrdude libgpiod-dev libtool
-git clone -b sdk-2.0.0 https://github.com/raspberrypi/openocd.git --remote-submodules
+```
+
+2. If using to program a Pico Pi, install openocd:
+
+```shell
+git clone -b sdk-2.0.0 --recurse-submodules https://github.com/raspberrypi/openocd.git
 cd openocd
 ./bootstrap
 ./configure --disable-werror --enable-bcm2835gpio
 make
 sudo make install
-# TODO - enable SPI/I2C in /boot/firmware/config.txt
-# TODO - make install application
 ```
 
-## Requirements
+3. Uncomment/enable the following lines on `/boot/firmware/config.txt` (or `/boot/config.txt`):
 
-This software is meant to run a Raspberry Pi 4 or greater. The following software is required to be installed:
- * Python 3
- * [openocd](https://github.com/raspberrypi/openocd) - to compile openocd, use the branch `sdk-2.0.0`, have `libgpiod-dev` installed first,
-   and run the config command as `./configure --disable-werror --enable-bcm2835gpio`.
+```
+dtparam=i2c_arm=on
+dtparam=spi=on
+```
 
-## Connection between Raspberry Pi and the Pi Pico
+4. Install `remoteprog` and enable service
 
-Connect the following pins:
+```shell
+git clone --remote-submodules https://github.com/andrenho/remoteprog
+cd remoteprog/server
+make
+sudo make install
+sudo systemctl enable remoteprog.service
+```
 
-| Raspberry PI | Pico Pi |
-|--------------|---------|
-| GPIO24 (18)  | SWDIO   |
-| GND (20)     | GND     |
-| GPIO25 (22)  | SWCLK   |
-
-# Uploading using client/server architecture
-
-This is useful when programming is being done in a PC (client), and uploading is being done using a Raspberry Pi via SWD (server).
-
-## Running the server
-
-Run in the Raspberry Pi as root:
-
-`sudo ./pico-pi-upload-server`
-
-This will start a new server in port 8376.
-
-## Calling the client from shell
-
-Run on the PC: `./pico-pi-upload-client REMOTE_URL PICO_VERSION my_firmware.elf`.
-
-`PICO_VERSION` can be `rp2040` (Pico Pi 1) or `rp2350` (Pico Pi 2). Be sure to use the **elf** file and not the **uf2**.
-
-## Calling the client with curl (TODO)
-
-Run on the PC:
-
-`curl -X POST -H "Content-Type: application/octet-stream" -d "{ \"cpu\": \"rp2350\", \"firmware\": \"$(base64 -i my_firmware.elf | tr -d '\n')\" }" http://REMOTE_URL:8376`
+# Additional information
 
 ## Calling the client with CMake
 
-Copy file `pico-pi-upload-client.sh` to your project source root, and add the following to your CMakeLists.txt:
+To automatically upload the firmware after a build, add the following to your CMakeLists.txt:
 
 ```cmake
 add_custom_target(upload-remote
-    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/pico-pi-upload-client.sh $ENV{REMOTE_URL} rp2350 ${CMAKE_PROJECT_NAME}.elf
+    COMMAND remoteprog upload ${CMAKE_PROJECT_NAME}.elf
     DEPENDS ${CMAKE_PROJECT_NAME}
     COMMENT "Uploading remotely..."
     VERBATIM
 )
 ```
 
-Be sure to set the environment variable `REMOTE_URL` when doing `make upload-remote`.
+It's important to call `remoteprog` once with the `-s` option to store the correct IP server.
 
 # Uploading directly on the Raspberry Pi
 
