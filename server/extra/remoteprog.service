@@ -1,6 +1,7 @@
 [Unit]
 Description=Remote programming
 After=network.target
+Wants=network.target
 StartLimitIntervalSec=0
 [Service]
 Type=simple
