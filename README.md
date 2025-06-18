@@ -5,7 +5,9 @@ to the circuit below.
 
 ## Schematic
 
+![Schematic](circuit/remote-programmer/remote-programmer.svg)
 
+[PDF Download](https://github.com/andrenho/remoteprog/blob/master/circuit/remote-programmer/remote-programmer.pdf)
 
 ## Usage
 
