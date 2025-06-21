@@ -96,6 +96,16 @@ It's important to call `remoteprog` once with the `-s` option to store the corre
 
 # Uploading directly on the Raspberry Pi
 
+## Connecting via serial
+
+`remoteprog` can be used as a standalone computer. Options are:
+
+ * connect via SSH to the IP address shown on the display
+ * connect a keyboard and monitor directly to the Pi
+ * connect to a computer via a FTDI cable. For that, edit the file `/boot/firmware/cmdline.txt` and add the following text before
+   everthing: `console=serial0,115200 console=tty1`. On the next reboot, the PI will start a console in the serial. Please notice
+   that the UART connection cannot be used in this case.
+
 ## Uploading via SWD
 
 This is useful when both development and uploading is being done on a Raspberry Pi. The Raspberry Pi and the Pico Pi need to be

@@ -53,13 +53,11 @@
 - [x] LCD code + beeper
 - [x] Low level communication
 - [x] Install OpenOCD
-- [ ] Create service, install
-- [ ] README
-- [ ] Test
-- [ ] Communicate via Serial (second UART?)
+- [x] Create service, install
+- [x] README
 
 ## Final
 
-- [ ] Create service
-- [ ] Create install
-- [ ] Installation procedure in a fresh Pi
+- [x] Create service
+- [x] Create install
+- [x] Installation procedure in a fresh Pi
