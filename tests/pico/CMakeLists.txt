@@ -11,16 +11,14 @@ set(CMAKE_CXX_STANDARD 17)
 
 pico_sdk_init()
 
-add_executable(blink
-    blink.c
-    )
+add_executable(remoteprog-test test.c)
 
 # pull in common dependencies
-target_link_libraries(blink pico_stdlib)
+target_link_libraries(remoteprog-test pico_stdlib pico_time hardware_spi)
 
 if (PICO_CYW43_SUPPORTED)
-    target_link_libraries(blink pico_cyw43_arch_none)
+    target_link_libraries(remoteprog-test pico_cyw43_arch_none)
 endif()
 
 # create map/bin/hex file etc.
-pico_add_extra_outputs(blink)
+pico_add_extra_outputs(remoteprog-test)

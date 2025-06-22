@@ -1,10 +1,6 @@
-/**
- * Copyright (c) 2020 Raspberry Pi (Trading) Ltd.
- *
- * SPDX-License-Identifier: BSD-3-Clause
- */
-
 #include "pico/stdlib.h"
+#include "pico/time.h"
+#include "hardware/spi.h"
 
 // Pico W devices use a GPIO on the WIFI chip for the LED,
 // so when building for Pico W, CYW43_WL_GPIO_LED_PIN will be defined
@@ -13,7 +9,7 @@
 #endif
 
 #ifndef LED_DELAY_MS
-#define LED_DELAY_MS 250
+#define LED_DELAY_MS 500
 #endif
 
 // Perform initialisation
@@ -41,13 +37,50 @@ void pico_set_led(bool led_on) {
 #endif
 }
 
+static bool update_led_cb(repeating_timer_t* rt)
+{
+    static bool led_state = false;
+    led_state = !led_state;
+    pico_set_led(led_state);
+}
+
+static void recv_spi()
+{
+    static uint8_t next = 0xff;
+
+    while (spi_is_readable(spi1)) {
+        while (!spi_is_writable(spi1)) {}
+        uint8_t r;
+        spi_write_read_blocking(spi1, &next, &r, 1);
+        next = r + 1;
+    }
+}
+
+static void spi_slave_init()
+{
+    spi_init(spi1, 1000 * 1000);
+    spi_set_format(spi1, 8, SPI_CPOL_1, SPI_CPHA_1, SPI_MSB_FIRST);
+    spi_set_slave(spi1, true);
+    gpio_set_function(10, GPIO_FUNC_SPI);
+    gpio_set_function(11, GPIO_FUNC_SPI);
+    gpio_set_function(12, GPIO_FUNC_SPI);
+    gpio_set_function(13, GPIO_FUNC_SPI);
+
+    irq_set_enabled(SPI1_IRQ, true);
+    irq_set_exclusive_handler(SPI1_IRQ, recv_spi);
+    spi1_hw->imsc = SPI_SSPIMSC_RTIM_BITS | SPI_SSPIMSC_RXIM_BITS;
+}
+
+
 int main() {
     int rc = pico_led_init();
     hard_assert(rc == PICO_OK);
+
+    spi_slave_init();
+
+    repeating_timer_t timer;
+    add_repeating_timer_ms(LED_DELAY_MS, update_led_cb, NULL, &timer);
+
     while (true) {
-        pico_set_led(true);
-        sleep_ms(LED_DELAY_MS);
-        pico_set_led(false);
-        sleep_ms(LED_DELAY_MS);
     }
 }
