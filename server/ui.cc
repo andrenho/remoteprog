@@ -119,7 +119,7 @@ void init()
 
 void beep_success()
 {
-    gpioSetPWMfrequency(BEEP, 400);
+    gpioSetPWMfrequency(BEEP, 1000);
     gpioPWM(BEEP, 128);
     usleep(100000);
     gpioPWM(BEEP, 0);
