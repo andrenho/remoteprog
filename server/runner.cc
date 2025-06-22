@@ -2,6 +2,7 @@
 
 #include <cstring>
 #include <cstdlib>
+#include <cstdio>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/wait.h>
@@ -18,6 +19,14 @@ namespace runner {
 
 bool execute(int response_fd, std::vector<std::string> const& command, bool debug)
 {
+    printf("Running command: ");
+    for (auto const& cmd: command)
+        if (cmd.find(' ') != std::string::npos)
+            printf("\"%s\" ", cmd.c_str());
+        else
+            printf("%s ", cmd.c_str());
+    printf("\n");
+
     char** args = (char **) calloc(sizeof(char *), command.size() + 1);
     for (size_t i = 0; i < command.size(); ++i) {
         args[i] = (char *) calloc(1, command.at(i).size() + 1);
