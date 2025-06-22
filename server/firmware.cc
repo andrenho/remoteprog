@@ -149,6 +149,8 @@ bool test_connection(int fd, Destination const& dest, bool debug_mode)
 
     switch (dest.microcontroller()) {
         case Destination_Microcontroller_PICO_1:
+            command = { "openocd", "-f", "/etc/remoteprog/raspberrypi-swd.cfg", "-f", "target/rp2350.cfg", "-c", "adapter speed 5000", "-c", "rp2350.dap.core1 cortex_m reset_config sysresetreq", "-c", "init; reset; exit" };
+            break;
         case Destination_Microcontroller_PICO_2:
             command = { "openocd", "-f", "/etc/remoteprog/raspberrypi-swd.cfg", "-f", "target/rp2350.cfg", "-c", "adapter speed 5000", "-c", "init; exit" };
             break;
