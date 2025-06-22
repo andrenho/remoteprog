@@ -53,7 +53,7 @@ bool execute(int response_fd, std::vector<std::string> const& command, bool debu
         close(stderr_pipe[1]);
 
         // execute command
-        execvp(args[0], &args[1]);
+        execvp(args[0], args);
         throw std::runtime_error("execpv(): "s + strerror(errno));
     }
 
