@@ -125,11 +125,11 @@ static bool upload_payload(int fd, Destination const& destination, std::string c
 
     switch (destination.microcontroller()) {
         case Destination_Microcontroller_PICO_1: {
-            command = { "openocd", "-f", "/etc/remoteprog/raspberrypi-swd.cfg", "-f", "target/rp2040.cfg", "-c", "program " + payload_filename + "; " + (verify ? "verify; " : "") + "reset; exit" };
+            command = { "openocd", "-f", "/etc/remoteprog/raspberrypi-swd.cfg", "-f", "target/rp2040.cfg", "-c", "program " + payload_filename + " " + (verify ? "verify " : "") + "reset exit" };
             break;
         }
         case Destination_Microcontroller_PICO_2:
-            command = { "openocd", "-f", "/etc/remoteprog/raspberrypi-swd.cfg", "-f", "target/rp2350.cfg", "-c", "adapter speed 5000", "-c", "rp2350.dap.core1 cortex_m reset_config sysresetreq", "-c", "program " + payload_filename + "; " + (verify ? "verify; " : "") + "reset; exit" };
+            command = { "openocd", "-f", "/etc/remoteprog/raspberrypi-swd.cfg", "-f", "target/rp2350.cfg", "-c", "adapter speed 5000", "-c", "rp2350.dap.core1 cortex_m reset_config sysresetreq", "-c", "program " + payload_filename + " " + (verify ? "verify " : "") + "reset exit" };
             break;
         case Destination_Microcontroller_AVR:
             command = { "avrdude", "-p", destination.part(), "-C", "/etc/remoteprog/avrdude.conf", "-c", "remoteprog", "-U", "flash:w:" + payload_filename + ":i" };
