@@ -14,7 +14,7 @@ else
 	CPPFLAGS += -O3
 endif
 
-server.o: messages.pb.o
+main.o llcomm.o server.o: messages.pb.o
 
 remoteprog-server: ${OBJ}
 	g++ -o $@ $^ ${LDFLAGS}

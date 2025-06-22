@@ -125,11 +125,11 @@ static bool upload_payload(int fd, Destination const& destination, std::string c
 
     switch (destination.microcontroller()) {
         case Destination_Microcontroller_PICO_1: {
-            command = { "openocd", "-f", "/etc/remoteprog/raspberrypi-swd.cfg", "-f", "target/rp2040.cfg", "-c", "program " + payload_filename + "; " + (verify ? "verify; " : "") + "reset; exit" };
+            command = { "openocd", "-f", "/etc/remoteprog/raspberrypi-swd.cfg", "-f", "target/rp2040.cfg", "-c", "program " + payload_filename + " " + (verify ? "verify " : "") + "reset exit" };
             break;
         }
         case Destination_Microcontroller_PICO_2:
-            command = { "openocd", "-f", "/etc/remoteprog/raspberrypi-swd.cfg", "-f", "target/rp2350.cfg", "-c", "adapter speed 5000", "-c", "rp2350.dap.core1 cortex_m reset_config sysresetreq", "-c", "program " + payload_filename + "; " + (verify ? "verify; " : "") + "reset; exit" };
+            command = { "openocd", "-f", "/etc/remoteprog/raspberrypi-swd.cfg", "-f", "target/rp2350.cfg", "-c", "adapter speed 5000", "-c", "rp2350.dap.core1 cortex_m reset_config sysresetreq", "-c", "program " + payload_filename + " " + (verify ? "verify " : "") + "reset exit" };
             break;
         case Destination_Microcontroller_AVR:
             command = { "avrdude", "-p", destination.part(), "-C", "/etc/remoteprog/avrdude.conf", "-c", "remoteprog", "-U", "flash:w:" + payload_filename + ":i" };
@@ -137,7 +137,7 @@ static bool upload_payload(int fd, Destination const& destination, std::string c
                 command.emplace_back("-V");
             break;
         default:
-            throw std::runtime_error("Unreachable code");
+            throw std::runtime_error("A microcontroller has not been selected.");
     }
 
     return runner::execute(fd, command, debug_mode);
@@ -149,14 +149,16 @@ bool test_connection(int fd, Destination const& dest, bool debug_mode)
 
     switch (dest.microcontroller()) {
         case Destination_Microcontroller_PICO_1:
+            command = { "openocd", "-f", "/etc/remoteprog/raspberrypi-swd.cfg", "-f", "target/rp2350.cfg", "-c", "adapter speed 5000", "-c", "rp2350.dap.core1 cortex_m reset_config sysresetreq", "-c", "init; reset; exit" };
+            break;
         case Destination_Microcontroller_PICO_2:
-            command = { "openocd", "-f", "/etc/remoteprog/raspberrypi-swd.cfg", "-f", "/etc/remoteprog/rp2350.cfg", "-c", "adapter speed 5000", "reset; exit" };
+            command = { "openocd", "-f", "/etc/remoteprog/raspberrypi-swd.cfg", "-f", "target/rp2350.cfg", "-c", "adapter speed 5000", "-c", "init; exit" };
             break;
         case Destination_Microcontroller_AVR:
             command = { "avrdude", "-p", dest.part(), "-C", "/etc/remoteprog/avrdude.conf", "-c", "remoteprog" };
             break;
         default:
-            throw std::runtime_error("Unreachable code");
+            throw std::runtime_error("A microcontroller has not been selected.");
     }
 
     return runner::execute(fd, command, debug_mode);
