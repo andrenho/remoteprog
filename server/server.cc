@@ -119,8 +119,11 @@ void listen(bool debug_mode)
 
     while (true) {
         int conn_fd = accept(socket_fd, (sockaddr *) &client_addr, &addr_size);
-        if (conn_fd == -1)
+        if (conn_fd == -1) {
+            if (errno == EINTR)
+                continue;
             throw std::runtime_error("accept(): "s + strerror(errno));
+        }
 
         printf("Connection received.\n");
         bool running = true;
