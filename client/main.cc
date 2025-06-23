@@ -19,7 +19,7 @@ Commands:
   fuse LOW HIGH EXTENDED [-p|--part=PART]
   reset [-t|--time MS]
   spi [FILE] [--baud=BAUD] [--pol=POL] [--pha=PHA] [-I|--interactive]
-  i2c [FILE] [--baud=BAUD] [-z|--response-sz=COUNT] [-I|--interactive]
+  i2c [FILE] [-D|--device-id=HEX] [-z|--response-sz=COUNT] [-I|--interactive]
 General options:
   -s | --server         server address (will use latest if not present)
   -d | --debug          debug mode
@@ -43,6 +43,7 @@ static Options parse_options(int argc, char* argv[])
         { "pol",         optional_argument, nullptr, 'O' },
         { "pha",         optional_argument, nullptr, 'A' },
         { "interactive", no_argument,       nullptr, 'I' },
+        { "device-id",   optional_argument, nullptr, 'D' },
         { "response-sz", optional_argument, nullptr, 'z' },
         { "server",      optional_argument, nullptr, 's' },
         { "help",        no_argument,       nullptr, 'h' },
@@ -53,7 +54,7 @@ static Options parse_options(int argc, char* argv[])
     int idx = 0;
 
     while (true) {
-        int c = getopt_long(argc, argv, "c:p:Vvt:b:O:A:Iz:s:d", options, &idx);
+        int c = getopt_long(argc, argv, "c:p:Vvt:b:O:A:ID:z:s:d", options, &idx);
         if (c == -1)
             break;
 
@@ -68,6 +69,7 @@ static Options parse_options(int argc, char* argv[])
             case 'O': opt.pol = std::stoi(optarg); break;
             case 'A': opt.pha = std::stoi(optarg); break;
             case 'I': opt.interactive = true; break;
+            case 'D': opt.device_id = std::stoi(optarg, nullptr, 16); break;
             case 'z': opt.response_count = std::stoi(optarg); break;
             case 's': opt.server = optarg; break;
             case 'd': opt.debug_mode = true; break;

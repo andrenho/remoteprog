@@ -3,7 +3,8 @@
 #include <cstring>
 #include <cstdlib>
 #include <ctime>
-#include <signal.h>
+#include <csignal>
+#include <sys/types.h>
 
 #include "llcomm.hh"
 #include "ui.hh"

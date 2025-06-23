@@ -73,9 +73,35 @@ void process_noninteractive(Options const& opt, bool debug_mode)
     send_message_and_print(opt, content, opt.response_count.value_or(0), debug_mode);
 }
 
+void send_config(Options const& opt, bool debug_mode)
+{
+    Request req;
+    if (opt.command == "spi") {
+        auto spi_config = new Request_SPIConfig;
+        if (opt.baud) spi_config->set_baud(*opt.baud);
+        if (opt.pha) spi_config->set_pha(*opt.pha);
+        if (opt.pol) spi_config->set_pha(*opt.pol);
+        req.set_allocated_spi_config(spi_config);
+    } else if (opt.command == "i2c") {
+        auto i2c_config = new Request_I2CConfig;
+        if (!opt.device_id)
+            throw std::runtime_error("A device id is required.");
+        i2c_config->set_device(*opt.device_id);
+        req.set_allocated_i2c_config(i2c_config);
+    }
+
+    Response response = client::send_request(req, debug_mode);
+    if (response.response_case() == Response::kResult) {
+        if (response.result().result_code() == Response_ResultCode_FAILURE)
+            throw std::runtime_error("There was an error configuring the protocol.");
+    } else {
+        throw std::runtime_error("Unexpected response type");
+    }
+}
+
 void process(Options const& opt, bool debug_mode)
 {
-    // TODO - SPI/I2C config
+    send_config(opt, debug_mode);
 
     if (opt.interactive)
         process_interactive(opt, debug_mode);
