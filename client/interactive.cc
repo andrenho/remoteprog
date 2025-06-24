@@ -41,7 +41,7 @@ void process_interactive(Options const& opt, bool debug_mode)
         std::vector<uint8_t> bytes;
         std::string hex;
 
-        std::cin.ignore();
+        //std::cin.ignore();
         if (!std::getline(std::cin, line))
             exit(EXIT_SUCCESS);
 

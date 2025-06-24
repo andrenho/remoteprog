@@ -67,6 +67,7 @@ static void spi_slave_init()
     spi_init(spi1, 1000 * 1000);
     spi_set_format(spi1, 8, SPI_CPOL_1, SPI_CPHA_1, SPI_MSB_FIRST);
     spi_set_slave(spi1, true);
+
     gpio_set_function(10, GPIO_FUNC_SPI);
     gpio_set_function(11, GPIO_FUNC_SPI);
     gpio_set_function(12, GPIO_FUNC_SPI);
@@ -85,7 +86,7 @@ static void i2c_handle(i2c_inst_t* i2c, i2c_slave_event_t event)
 }
 
 
-static void setup_slave()
+static void setup_i2c_slave()
 {
     // https://github.com/vmilea/pico_i2c_slave/blob/master/example_mem/example_mem.c
     gpio_init(4);
@@ -109,7 +110,7 @@ int main()
     hard_assert(rc == PICO_OK);
 
     spi_slave_init();
-    setup_slave();
+    // setup_i2c_slave();
 
     repeating_timer_t timer;
     add_repeating_timer_ms(LED_DELAY_MS, update_led_cb, NULL, &timer);
