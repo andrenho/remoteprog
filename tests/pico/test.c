@@ -7,7 +7,7 @@
 #include <i2c_fifo.h>
 #include <i2c_slave.h>
 
-static uint8_t next = 0xfe;
+static uint8_t next = 0xff;
 
 static const uint I2C_SLAVE_ADDRESS = 0x27;
 
@@ -56,10 +56,9 @@ static bool update_led_cb(repeating_timer_t* rt)
 static void recv_spi()
 {
     uint8_t r;
-    spi_read_blocking(spi1, 0, &r, 1);
-    printf("> %02X\n", &r);
+    while (!spi_is_readable(spi1) && !spi_is_writable(spi1)) {}
+    spi_write_read_blocking(spi1, &next, &r, 1);
     next = r + 1;
-    spi_write_blocking(spi1, &next, 1);
 }
 
 static void spi_slave_init()
@@ -115,8 +114,8 @@ int main()
     repeating_timer_t timer;
     add_repeating_timer_ms(LED_DELAY_MS, update_led_cb, NULL, &timer);
 
-    while (true) {
-        printf("Hello world\n");
-        sleep_ms(1000);
-    }
+    printf("Hello world\n");
+
+    while (true)
+        tight_loop_contents();
 }
