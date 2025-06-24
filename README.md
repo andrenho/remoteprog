@@ -79,6 +79,11 @@ sudo systemctl enable remoteprog.service
 
 # Additional information
 
+## UART
+
+To access the UART port, connect to the Raspberry Pi Zero via SSH, and use `sudo screen /dev/ttyS0 115200`. This will only
+work if the serial console is **disabled** in /boot/firmware/cmdline.txt.
+
 ## Calling the client with CMake
 
 To automatically upload the firmware after a build, add the following to your CMakeLists.txt:
