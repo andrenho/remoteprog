@@ -37,25 +37,27 @@ void process_interactive(Options const& opt, bool debug_mode)
     for (;;) {
         printf("Bytes? ");
 
-        std::string line;
-        std::vector<uint8_t> bytes;
-        std::string hex;
+        char line[255];
+        if (fgets(line, sizeof(line), stdin)) {
+            std::vector<uint8_t> bytes;
+            std::string hex;
 
-        //std::cin.ignore();
-        if (!std::getline(std::cin, line))
-            exit(EXIT_SUCCESS);
+            std::istringstream iss(line);
+            while (iss >> hex)
+                bytes.push_back((uint8_t) std::stoul(hex, nullptr, 16));
 
-        std::istringstream iss(line);
-        while (iss >> hex)
-            bytes.push_back((uint8_t) std::stoul(hex, nullptr, 16));
+            for (uint8_t byte: bytes)
+                printf(">> %02X <<\n", byte);
 
-        int response_count = 0;
-        if (opt.command == "i2c") {
-            printf("Response size? ");
-            scanf("%d", &response_count);
+            int response_count = 0;
+            if (opt.command == "i2c") {
+                printf("Response size? ");
+                if (fgets(line, sizeof(line), stdin))
+                    response_count = std::strtoll(line, nullptr, 10);
+            }
+
+            send_message_and_print(opt, std::string(bytes.begin(), bytes.end()), response_count, debug_mode);
         }
-
-        send_message_and_print(opt, std::string(bytes.begin(), bytes.end()), response_count, debug_mode);
     }
 }
 
