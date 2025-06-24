@@ -11,10 +11,10 @@ set(CMAKE_CXX_STANDARD 17)
 
 pico_sdk_init()
 
-add_executable(remoteprog-test test.c)
+add_executable(remoteprog-test test.c i2c_slave.c)
 
-# pull in common dependencies
-target_link_libraries(remoteprog-test pico_stdlib pico_time hardware_spi)
+target_include_directories(remoteprog-test PRIVATE .)
+target_link_libraries(remoteprog-test pico_stdlib pico_time hardware_spi hardware_i2c hardware_irq)
 
 if (PICO_CYW43_SUPPORTED)
     target_link_libraries(remoteprog-test pico_cyw43_arch_none)
@@ -22,3 +22,4 @@ endif()
 
 # create map/bin/hex file etc.
 pico_add_extra_outputs(remoteprog-test)
+pico_enable_stdio_uart(remoteprog-test 1)
