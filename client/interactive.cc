@@ -46,8 +46,10 @@ void process_interactive(Options const& opt, bool debug_mode)
             while (iss >> hex)
                 bytes.push_back((uint8_t) std::stoul(hex, nullptr, 16));
 
+            /*
             for (uint8_t byte: bytes)
                 printf(">> %02X <<\n", byte);
+                */
 
             int response_count = 0;
             if (opt.command == "i2c") {
