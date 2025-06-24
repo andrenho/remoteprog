@@ -7,42 +7,24 @@
 #include <i2c_fifo.h>
 #include <i2c_slave.h>
 
-static uint8_t next = 0xff;
+static uint8_t data[256];
+static uint8_t current = 0;
 
-static const uint I2C_SLAVE_ADDRESS = 0x27;
+// 
+// LED
+// 
 
-// Pico W devices use a GPIO on the WIFI chip for the LED,
-// so when building for Pico W, CYW43_WL_GPIO_LED_PIN will be defined
 #ifdef CYW43_WL_GPIO_LED_PIN
 #include "pico/cyw43_arch.h"
 #endif
 
-#ifndef LED_DELAY_MS
-#define LED_DELAY_MS 500
-#endif
-
-// Perform initialisation
-int pico_led_init(void) {
+static void pico_led_init()
+{
 #if defined(PICO_DEFAULT_LED_PIN)
-    // A device like Pico that uses a GPIO for the LED will define PICO_DEFAULT_LED_PIN
-    // so we can use normal GPIO functionality to turn the led on and off
     gpio_init(PICO_DEFAULT_LED_PIN);
     gpio_set_dir(PICO_DEFAULT_LED_PIN, GPIO_OUT);
-    return PICO_OK;
 #elif defined(CYW43_WL_GPIO_LED_PIN)
-    // For Pico W devices we need to initialise the driver etc
-    return cyw43_arch_init();
-#endif
-}
-
-// Turn the led on or off
-void pico_set_led(bool led_on) {
-#if defined(PICO_DEFAULT_LED_PIN)
-    // Just set the GPIO on or off
-    gpio_put(PICO_DEFAULT_LED_PIN, led_on);
-#elif defined(CYW43_WL_GPIO_LED_PIN)
-    // Ask the wifi "driver" to set the GPIO on or off
-    cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, led_on);
+    cyw43_arch_init();
 #endif
 }
 
@@ -50,15 +32,23 @@ static bool update_led_cb(repeating_timer_t* rt)
 {
     static bool led_state = false;
     led_state = !led_state;
-    pico_set_led(led_state);
+#if defined(PICO_DEFAULT_LED_PIN)
+    gpio_put(PICO_DEFAULT_LED_PIN, led_state);
+#elif defined(CYW43_WL_GPIO_LED_PIN)
+    cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, led_state);
+#endif
 }
+
+//
+// SPI
+// 
 
 static void recv_spi()
 {
-    uint8_t r;
     while (!spi_is_readable(spi1) && !spi_is_writable(spi1)) {}
-    spi_write_read_blocking(spi1, &next, &r, 1);
-    next = r + 1;
+
+    uint8_t r;
+    spi_write_read_blocking(spi1, &data[current++], &r, 1);
 }
 
 static void spi_slave_init()
@@ -78,6 +68,9 @@ static void spi_slave_init()
     irq_set_exclusive_handler(SPI1_IRQ, recv_spi);
 }
 
+//
+// I2C
+//
 
 static void i2c_handle(i2c_inst_t* i2c, i2c_slave_event_t event)
 {
@@ -86,7 +79,7 @@ static void i2c_handle(i2c_inst_t* i2c, i2c_slave_event_t event)
             i2c_read_byte(i2c);
             break;
         case I2C_SLAVE_REQUEST:  // master requests data
-            i2c_write_byte(i2c, 0x43);
+            i2c_write_byte(i2c, data[current++]);
             break;
         case I2C_SLAVE_FINISH:   // master has signalled stop
             break;
@@ -96,6 +89,8 @@ static void i2c_handle(i2c_inst_t* i2c, i2c_slave_event_t event)
 
 static void setup_i2c_slave()
 {
+    static const uint I2C_SLAVE_ADDRESS = 0x27;
+
     // https://github.com/vmilea/pico_i2c_slave/blob/master/example_mem/example_mem.c
     gpio_init(4);
     gpio_set_function(4, GPIO_FUNC_I2C);
@@ -109,22 +104,25 @@ static void setup_i2c_slave()
     i2c_slave_init(i2c0, I2C_SLAVE_ADDRESS, i2c_handle);
 }
 
+//
+// main
+// 
 
 int main()
 {
+    for (size_t i = 0; i < 256; ++i)
+        data[i] = i;
+
     stdio_uart_init();
-
-    int rc = pico_led_init();
-    hard_assert(rc == PICO_OK);
-
+    pico_led_init();
     spi_slave_init();
     setup_i2c_slave();
 
     repeating_timer_t timer;
-    add_repeating_timer_ms(LED_DELAY_MS, update_led_cb, NULL, &timer);
+    add_repeating_timer_ms(500, update_led_cb, NULL, &timer);
 
     printf("Hello world\n");
 
     while (true)
-        tight_loop_contents();
+        tight_loop_contents();  // everything happens through callbacks
 }
