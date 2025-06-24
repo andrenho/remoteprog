@@ -109,7 +109,7 @@ int main()
     hard_assert(rc == PICO_OK);
 
     spi_slave_init();
-    // setup_i2c_slave();
+    setup_i2c_slave();
 
     repeating_timer_t timer;
     add_repeating_timer_ms(LED_DELAY_MS, update_led_cb, NULL, &timer);
