@@ -81,7 +81,16 @@ static void spi_slave_init()
 
 static void i2c_handle(i2c_inst_t* i2c, i2c_slave_event_t event)
 {
-    printf("I2C\n");
+    switch (event) {
+        case I2C_SLAVE_RECEIVE:  // master has written data
+            i2c_read_byte(i2c);
+            break;
+        case I2C_SLAVE_REQUEST:  // master requests data
+            i2c_write_byte(i2c, 0x43);
+            break;
+        case I2C_SLAVE_FINISH:   // master has signalled stop
+            break;
+    }
 }
 
 
