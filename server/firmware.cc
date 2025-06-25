@@ -132,7 +132,7 @@ static bool upload_payload(int fd, Destination const& destination, std::string c
             command = { "openocd", "-f", "/etc/remoteprog/raspberrypi-swd.cfg", "-f", "target/rp2350.cfg", "-c", "adapter speed 5000", "-c", "rp2350.dap.core1 cortex_m reset_config sysresetreq", "-c", "program " + payload_filename + " " + (verify ? "verify " : "") + "reset exit" };
             break;
         case Destination_Microcontroller_AVR:
-            command = { "avrdude", "-p", destination.part(), "-C", "/etc/remoteprog/avrdude.conf", "-c", "remoteprog", "-U", "flash:w:" + payload_filename + ":i" };
+            command = { "avrdude", "-v", "-p", destination.part(), "-C", "+/etc/remoteprog/avrdude.conf", "-c", "remoteprog", "-U", "flash:w:" + payload_filename + ":i" };
             if (!verify)
                 command.emplace_back("-V");
             break;
@@ -155,7 +155,7 @@ bool test_connection(int fd, Destination const& dest, bool debug_mode)
             command = { "openocd", "-f", "/etc/remoteprog/raspberrypi-swd.cfg", "-f", "target/rp2350.cfg", "-c", "adapter speed 5000", "-c", "init; exit" };
             break;
         case Destination_Microcontroller_AVR:
-            command = { "avrdude", "-p", dest.part(), "-C", "/etc/remoteprog/avrdude.conf", "-c", "remoteprog" };
+            command = { "avrdude", "-v", "-p", dest.part(), "-C", "+/etc/remoteprog/avrdude.conf", "-c", "remoteprog", "-U", "lfuse:r:-:h", "-U", "hfuse:r:-:h", "-U", "efuse:r:-:h" };
             break;
         default:
             throw std::runtime_error("A microcontroller has not been selected.");
@@ -172,7 +172,7 @@ bool program_fuses(int fd, Request_AvrFuseProgramming const& fuses, bool debug_m
         snprintf(flow, sizeof flow, "lfuse:w:0x%02X:m", fuses.low());
         snprintf(fhigh, sizeof fhigh, "hfuse:w:0x%02X:m", fuses.high());
         command = {
-            "avrdude", "-p", fuses.destination().part(), "-C", "/etc/remoteprog/avrdude.conf", "-c", "remoteprog",
+            "avrdude", "-v", "-p", fuses.destination().part(), "-C", "+/etc/remoteprog/avrdude.conf", "-c", "remoteprog",
             "-U", std::string(flow),
             "-U", std::string(fhigh)
         };
