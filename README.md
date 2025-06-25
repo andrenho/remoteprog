@@ -46,10 +46,12 @@ sudo make install
 1. Install dependencies
 
 ```shell
-sudo apt-get install zlib1g-dev protobuf-compiler avrdude libgpiod-dev libtool
+sudo apt-get install zlib1g-dev protobuf-compiler libgpiod-dev libtool
 ```
 
-2. If using to program a Pico Pi, install openocd:
+(ps. don't install openocd or avrdude from binary, see instructions below)
+
+2. If using remoteprog to program a Pico Pi, install openocd:
 
 ```shell
 git clone -b sdk-2.0.0 --recurse-submodules https://github.com/raspberrypi/openocd.git
@@ -58,6 +60,15 @@ cd openocd
 ./configure --disable-werror --enable-bcm2835gpio
 make
 sudo make install
+```
+
+3. If using remoteprog to program a AVR, install avrdude:
+
+```shell
+git clone https://github.com/avrdudes/avrdude.git
+cd avrdude
+./build.sh
+sudo cmake --build build_linux --target install
 ```
 
 3. Uncomment/enable the following lines on `/boot/firmware/config.txt` (or `/boot/config.txt`):
