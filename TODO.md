@@ -1,63 +1,16 @@
-# Circuit
+## Ideas for version v3.0
 
-- Pi Zero W (or 2)
-- Power control - 5V and 3.3V (use transistor to control it)
-  - Show LED
-- Pico SWD programmer
-  - SWCLK,  GND, SWIO,   5V,    TX,     RX,     RESET
-  - GPIO24, GND, GPIO25, GPIO1, GPIO14, GPIO15, GPIO12
-- AVR programmer
-  - MOSI,   MISO,   SCK,    RST,    5V,    GND, TX,     RX
-  - GPIO18, GPIO23, GPIO24, GPIO12, GPIO1, GND, GPIO14, GPIO15
-- General outputs
-  - SPI master + slave
-    - 5V,    GND, MOSI,   MISO,   SCK,    CS0,   CS1
-    - GPIO1, GND, GPIO10, GPIO09, GPIO11, GPIO8, GPIO7    # confirm pigpio
-  - SPI master + slave (3.3V)
-  - I2C
-    - 5V+3V,  SLA,   SCL,   GND
-    - GPIO01, GPIO2, GPIO3, GND
-  - Serial
-    - 5V,    TX,     RX,     GND
-    - GPIO1, GPIO14, GPIO15, GND
-- LCD1602
-  - 6 pins
-    - RS,     E,      D4,    D5,    D6,    D7
-    - GPIO17, GPIO27, GPIO0, GPIO5, GPIO6, GPIO13
-  - Show IP
-  - Status: Ok, Programming, Error
-- Status LED
-  - OR'd SWCLK, AVR SCK, SPI SCK, SCL
-
-# Client/server functionality
-
-## Client/server
-
-- [x] Configuration file
-- [x] Communication code, protobuf
-- [x] Create client
-  - [x] Auto-save latest IP
-- [x] Test communication
-- [x] Upload firmware
-  - [x] Receive compresse file
-  - [x] Send speed
-- [x] Treat errors in client
-- [x] Validate file type
-- [x] Server never fail
-- [x] Auto-detect firmware type (on server)
-- [x] SPI communication (simulation)
-- [x] I2C communication (simulation)
-
-## PI
-
-- [x] LCD code + beeper
-- [x] Low level communication
-- [x] Install OpenOCD
-- [x] Create service, install
-- [x] README
-
-## Final
-
-- [x] Create service
-- [x] Create install
-- [x] Installation procedure in a fresh Pi
+- Small form factor (1/2 size)
+- Small OLED screen
+- 3 inputs
+  - SWD
+  - AVR ISP
+  - Debugging
+    - Power (5V?, 3.3V, GND)
+    - SPI (MOSI, MOSI, SCK, CS0)
+    - I2C (SDA, SCL)
+    - UART (RX, TX)
+- Separate 3.3V -> 5V conversion board
+  - Override AVR ISP and debugging
+- Power, Reset button, LED
+- Beeper
