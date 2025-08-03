@@ -18,6 +18,10 @@
 // include libraries
 #include "twi.h"
 
+#include <pigpio.h>
+
+static int i2c_handle = -1;
+
 /**
  * @desc    TWI init - initialize frequency
  *
@@ -27,6 +31,7 @@
  */
 void TWI_Init (void)
 {
+    i2c_handle = i2cOpen(1, 0x3c, 0);
   // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   // Calculation fclk:
   //
@@ -54,6 +59,7 @@ void TWI_Init (void)
  */
 char TWI_MT_Start (void)
 {
+
     /*
   // null status flag
   TWI_TWSR &= ~0xA8;
