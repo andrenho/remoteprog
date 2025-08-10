@@ -21,8 +21,6 @@ Commands:
   test [-c|--core=CORE] [-p|--part=PART]
   fuse LOW HIGH EXTENDED [-p|--part=PART]
   reset [-t|--time MS]
-  spi [FILE] [--baud=BAUD] [--pol=POL] [--pha=PHA] [-I|--interactive]
-  i2c [FILE] [--baud=BAUD] [-z|--response-sz=COUNT] [-I|--interactive]
 General options:
   -s | --server         server address (will use latest if not present)
   -d | --debug          debug mode
