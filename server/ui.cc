@@ -16,8 +16,8 @@ static SSD_Buffer* bf;
                
 static void i2c_init(void* data)
 {
-    int bus = (int) data;
-    H = i2cOpen(bus, 0x3c, 0);
+    (void) data;
+    H = i2cOpen(1, 0x3c, 0);
 }
 
 static void i2c_finalize(void* data)
@@ -40,13 +40,16 @@ static void i2c_send_bytes(void* data, uint8_t const* bytes, size_t sz)
 
 namespace ui {
 
+static uint8_t pos_x = 0;
+static uint8_t pos_y = 3;
+
 static void init_display()
 {
     ssd1306_init((I2CFunctions) {
-        .data = (void *) 1,
+        .data = nullptr,
         .init = i2c_init,
-        .send_bytes = i2c_send_bytes,
         .finalize = i2c_finalize,
+        .send_bytes = i2c_send_bytes,
     }, 32);
 
     bf = ssd1306_create_buffer();
@@ -81,21 +84,20 @@ void beep_error()
 
 void print(const char* str)
 {
-    // TODO
+    buffer_draw_string(bf, &toshiba_font, pos_x, pos_y, str);
+    ssd1306_render_buffer(bf);
 }
 
 void clear()
 {
-    // TODO
+    buffer_clear(bf);
+    ssd1306_render_buffer(bf);
 }
 
 void set_position(uint8_t x, uint8_t y)
 {
-    /*
-    if (y == 0)
-        SSD1306_SetPosition(7, 1);
-    */
-    // TODO
+    pos_x = x * toshiba_font.char_w;
+    pos_y = y * toshiba_font.char_h + 3;
 }
 
 }
