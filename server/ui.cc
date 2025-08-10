@@ -3,9 +3,6 @@
 #include <unistd.h>
 
 #include <stdexcept>
-extern "C" {
-#include "ssd1306/ssd1306.h"
-}
 
 #define BEEP 16
 
@@ -13,7 +10,7 @@ namespace ui {
 
 static void init_display()
 {
-    SSD1306_Init(SSD1306_ADDR);
+    // TODO
 }
 
 void init()
@@ -47,18 +44,20 @@ void beep_error()
 
 void print(const char* str)
 {
-    SSD1306_DrawString(str);
+    // TODO
 }
 
 void clear()
 {
-    SSD1306_Clear();
+    // TODO
 }
 
 void set_position(uint8_t x, uint8_t y)
 {
+    /*
     if (y == 0)
         SSD1306_SetPosition(7, 1);
+    */
     // TODO
 }
 

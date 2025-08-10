@@ -2,7 +2,7 @@ all: remoteprog
 
 include ../protobuf/protobuf.mk
 
-OBJ = main.o client.o lastcall.o request.o interactive.o messages.pb.o
+OBJ = main.o client.o lastcall.o request.o messages.pb.o
 CPPFLAGS = -Wall -Wextra -std=c++20 -I. -I../protobuf `pkg-config --cflags protobuf zlib`
 LDFLAGS = `pkg-config --libs protobuf zlib`
 

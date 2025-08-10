@@ -34,34 +34,11 @@ message Request {
     uint32 time_ms = 1;
   }
 
-  message SPIConfig {
-    uint32 baud = 1;
-    bool   pol = 2;
-    bool   pha = 3;
-  }
-
-  message I2CConfig {
-    // uint32 baud = 1;
-    uint32 device = 2;
-  }
-
-  message I2CMessage {
-    bytes  data = 1;
-    uint32 expect_response_sz = 2;
-  }
-
-  message Finalize {}
-
   oneof request {
     FirmwareUpload     firmware_upload  = 1;
     Destination        test_connection  = 2;
     AvrFuseProgramming fuse_programming = 3;
     Reset              reset            = 4;
-    SPIConfig          spi_config       = 5;
-    bytes              spi_message      = 6;
-    I2CConfig          i2c_config       = 7;
-    I2CMessage         i2c_message      = 8;
-    Finalize           finalize         = 99;
   }
 }
 

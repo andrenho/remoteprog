@@ -5,7 +5,6 @@
 #include <optional>
 #include <string>
 
-#include "interactive.hh"
 #include "lastcall.hh"
 #include "options.hh"
 #include "request.hh"
@@ -18,8 +17,6 @@ Commands:
   test [-c|--core=CORE] [-p|--part=PART]
   fuse LOW HIGH EXTENDED [-p|--part=PART]
   reset [-t|--time MS]
-  spi [FILE] [--baud=BAUD] [--pol=POL] [--pha=PHA] [-I|--interactive]
-  i2c [FILE] [-D|--device-id=HEX] [-z|--response-sz=COUNT] [-I|--interactive]
 General options:
   -s | --server         server address (will use latest if not present)
   -d | --debug          debug mode
@@ -40,11 +37,6 @@ static Options parse_options(int argc, char* argv[])
         { "verbose",     no_argument,       nullptr, 'v' },
         { "time",        optional_argument, nullptr, 't' },
         { "baud",        optional_argument, nullptr, 'b' },
-        { "pol",         optional_argument, nullptr, 'O' },
-        { "pha",         optional_argument, nullptr, 'A' },
-        { "interactive", no_argument,       nullptr, 'I' },
-        { "device-id",   optional_argument, nullptr, 'D' },
-        { "response-sz", optional_argument, nullptr, 'z' },
         { "server",      optional_argument, nullptr, 's' },
         { "help",        no_argument,       nullptr, 'h' },
         { "debug",       no_argument,       nullptr, 'd' },
@@ -66,11 +58,6 @@ static Options parse_options(int argc, char* argv[])
             case 'v': opt.verbose = true; break;
             case 't': opt.wtime = std::stoi(optarg); break;
             case 'b': opt.baud = std::stoi(optarg); break;
-            case 'O': opt.pol = std::stoi(optarg); break;
-            case 'A': opt.pha = std::stoi(optarg); break;
-            case 'I': opt.interactive = true; break;
-            case 'D': opt.device_id = std::stoi(optarg, nullptr, 16); break;
-            case 'z': opt.response_count = std::stoi(optarg); break;
             case 's': opt.server = optarg; break;
             case 'd': opt.debug_mode = true; break;
             case '?': break;
@@ -81,7 +68,7 @@ static Options parse_options(int argc, char* argv[])
     while (optind < argc) {
         if (opt.command.empty()) {
             opt.command = argv[optind];
-        } else if (opt.command == "upload" || opt.command == "i2c" || opt.command == "spi") {
+        } else if (opt.command == "upload") {
             opt.file = argv[optind];
         } else if (opt.command == "fuse") {
             if (!opt.fuse_low)
@@ -128,11 +115,6 @@ int main(int argc, char* argv[])
             throw std::runtime_error("A server configuration was not found. Please determine the server.");
 
         client::connect(opt.server);
-
-        if (opt.command == "spi" || opt.command == "i2c") {
-            interactive::process(opt, opt.debug_mode);
-            return EXIT_SUCCESS;
-        }
 
         Request request = build_request(opt);
         Response response = client::send_request(request, opt.debug_mode);
