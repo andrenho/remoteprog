@@ -200,36 +200,6 @@ static bool handle(int fd, bool debug_mode)
                 llcomm::reset(request.reset());
                 send_success(fd, debug_mode);
                 break;
-            case Request::kSpiConfig:
-                llcomm::spi_configure(request.spi_config());
-                send_success(fd, debug_mode);
-                break;
-            case Request::kSpiMessage: {
-                ui::print("SPI");
-                uint8_t response[request.spi_message().size()];
-                llcomm::spi_send((uint8_t const*) request.spi_message().data(), request.spi_message().size(), response);
-                Response r;
-                r.set_message(std::string((const char *) response, request.spi_message().size()));
-                send_message(fd, r, debug_mode);
-                break;
-            }
-            case Request::kI2CConfig:
-                llcomm::i2c_configure(request.i2c_config());
-                send_success(fd, debug_mode);
-                break;
-            case Request::kI2CMessage:{
-                ui::print("I2C");
-                uint8_t response[request.i2c_message().expect_response_sz()];
-                llcomm::i2c_send((uint8_t const*) request.i2c_message().data().data(), request.i2c_message().data().size(), response, request.i2c_message().expect_response_sz());
-                Response r;
-                r.set_message(std::string((const char *) response, request.i2c_message().expect_response_sz()));
-                send_message(fd, r, debug_mode);
-                break;
-            }
-            case Request::kFinalize:
-                llcomm::finalize();
-                send_success(fd, debug_mode);
-                break;
             case Request::REQUEST_NOT_SET:
                 send_error(fd, "Protobuf message without a request", debug_mode);
             close(fd);

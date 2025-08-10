@@ -2,7 +2,7 @@ all: remoteprog-server
 
 include ../protobuf/protobuf.mk
 
-OBJ = main.o server.o firmware.o runner.o llcomm.o ui.o messages.pb.o ssd1306/ssd1306.o ssd1306/twi.o
+OBJ = main.o server.o firmware.o runner.o llcomm.o ui.o messages.pb.o ssd1306-driver/ssd1306.o
 CPPFLAGS = -Wall -Wextra -I. -I../protobuf `pkg-config --cflags protobuf zlib`
 CXXFLAGS = -std=c++20 
 LDFLAGS = `pkg-config --libs protobuf zlib` -pthread -lpigpio

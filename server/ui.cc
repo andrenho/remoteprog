@@ -4,6 +4,11 @@
 
 #include <stdexcept>
 
+extern "C" {
+#include "ssd1306-driver/ssd1306.h"
+#include "ssd1306-driver/toshiba-font.h"
+}
+
 #define BEEP 16
 
 namespace ui {
