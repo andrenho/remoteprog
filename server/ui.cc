@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <cstring>
 #include <pigpio.h>
 #include <unistd.h>
 
@@ -84,6 +85,7 @@ void beep_error()
 
 void print(const char* str)
 {
+    buffer_fill_rect(bf, pos_x, pos_y, toshiba_font.char_w * strlen(str), toshiba_font.char_h, false);
     buffer_draw_string(bf, &toshiba_font, pos_x, pos_y, str);
     ssd1306_render_buffer(bf);
 }
