@@ -4358,16 +4358,6 @@
 	)
 	(wire
 		(pts
-			(xy 104.14 88.9) (xy 123.19 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2b9d6319-3d4a-4f7b-a853-9c0b2721cdbe")
-	)
-	(wire
-		(pts
 			(xy 191.77 129.54) (xy 195.58 129.54)
 		)
 		(stroke
@@ -4448,6 +4438,16 @@
 	)
 	(wire
 		(pts
+			(xy 123.19 88.9) (xy 123.19 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3c53639e-bdb0-4dc9-bde3-e4382e76d5c6")
+	)
+	(wire
+		(pts
 			(xy 205.74 50.8) (xy 205.74 59.69)
 		)
 		(stroke
@@ -4525,6 +4525,16 @@
 			(type default)
 		)
 		(uuid "4bf985cd-4a26-42b1-a386-626d87ea624b")
+	)
+	(wire
+		(pts
+			(xy 123.19 76.2) (xy 104.14 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4cb5e0f6-f880-4822-8ffd-ed7a3ed2e42d")
 	)
 	(wire
 		(pts
@@ -5106,8 +5116,8 @@
 		)
 		(uuid "08fab84e-7857-493f-aead-6a86c48e9154")
 	)
-	(label "GPIO23 (SERIAL)"
-		(at 105.41 88.9 0)
+	(label "GPIO07 (SERIAL)"
+		(at 105.41 76.2 0)
 		(effects
 			(font
 				(size 1.27 1.27)
