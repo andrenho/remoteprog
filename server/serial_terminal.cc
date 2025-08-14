@@ -12,9 +12,7 @@ void init()
 {
     gpioSetPullUpDown(23, PI_PUD_UP);
     gpioSetAlertFunc(23, [](int gpio, int level, uint32_t tick) {
-        if (level == 0) {
-            printf("Change detected\n");
-        }
+        printf("Change detected level %d\n", level);
     });
 }
 
