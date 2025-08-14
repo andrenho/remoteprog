@@ -8,6 +8,7 @@
 
 #include "llcomm.hh"
 #include "ui.hh"
+#include "serial_terminal.hh"
 
 static int update_network_tries = 0;
 static timer_t timer;
@@ -28,6 +29,15 @@ static void update_network_signal(int sig)
 
     if (ip || update_network_tries > 5)
         timer_delete(timer);
+}
+
+static void update_serial_mode()
+{
+    ui::set_position(0, 1);
+    if (serial_terminal::get())
+        ui::print("Serial: terminal");
+    else
+        ui::print("Serial: UART");
 }
 
 static void update_network_timer()   // create timer to update IP address on display
@@ -59,10 +69,12 @@ int main(int argc, char* argv[])
         debug_mode = true;
 
     llcomm::init();
+    serial_terminal::init();
     ui::init();
     ui::beep_success();
 
     update_network_timer();
+    update_serial_mode();
 
     server::listen(debug_mode);
 
