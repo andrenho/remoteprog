@@ -5,7 +5,6 @@ namespace serial_terminal {
 
 void init();
 bool get();
-void set(bool value);
 
 };
 
