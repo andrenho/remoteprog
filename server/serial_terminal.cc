@@ -42,7 +42,7 @@ void set_serial_and_reset()
             ui::beep_success();
             
             sync();
-            reboot(LINUX_REBOOT_MAGIC1, LINUX_REBOOT_MAGIC2, RB_AUTOBOOT, nullptr);
+            reboot(RB_AUTOBOOT);
         }
     }
 }
