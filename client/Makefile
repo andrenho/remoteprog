@@ -7,9 +7,9 @@ CPPFLAGS = -Wall -Wextra -std=c++20 -I. -I../protobuf `pkg-config --cflags proto
 LDFLAGS = `pkg-config --libs protobuf zlib`
 
 ifdef RELEASE
-	CPPFLAGS += -g -ggdb -O0
-else
 	CPPFLAGS += -O3
+else
+	CPPFLAGS += -g -ggdb -O0
 endif
 
 main.o: messages.pb.o
